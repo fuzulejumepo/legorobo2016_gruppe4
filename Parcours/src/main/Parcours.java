@@ -1,5 +1,6 @@
 package main;
 
+import lejos.hardware.Keys;
 import model.LegoRobot;
 import model.RobotState;
 import strategy.InitialStrategy;
@@ -14,7 +15,7 @@ public class Parcours {
 		SensorWatcher sensorWatcher = new SensorWatcher(robot);
 		
 		/* start the parcours */
-		robot.drawText("Start!");
+		robot.drawText("Start!", 5, 4);
 		Strategy strategy = new InitialStrategy();
 		
 		while (sensorWatcher.getState() != RobotState.ERROR &&
@@ -23,7 +24,8 @@ public class Parcours {
 			Thread sensorThread = new Thread(sensorWatcher);
 			sensorThread.start();
 			
-			robot.drawText(strategy.toString());
+			robot.lcdClear();
+			robot.drawText(strategy.toString(), 1, 4);
 			strategy = strategy.apply();
 			
 			try {
@@ -33,7 +35,13 @@ public class Parcours {
 			}
 		}
 		
-		robot.drawText("Finished!");
+		robot.lcdClear();
+		robot.drawText("Finished!", 5, 4);
+		
+		robot.close();
+		
+		Keys keys = robot.getBrick().getKeys();
+		keys.waitForAnyPress();
 	}
 
 }

@@ -1,6 +1,5 @@
 package model;
 
-import lejos.hardware.Brick;
 import lejos.hardware.BrickFinder;
 import lejos.hardware.ev3.EV3;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
@@ -22,7 +21,6 @@ public class LegoRobot {
 	
 	public LegoRobot() {
 		this.brick = (EV3) BrickFinder.getLocal();
-		
 		this.leftMotor = Motor.A;
 		this.rightMotor = Motor.D;
 		this.headMotor = Motor.C;
@@ -33,13 +31,17 @@ public class LegoRobot {
 	    Port s1 = brick.getPort("S1");
 	    this.colorSensor = new EV3ColorSensor(s1);
 	}
-	
+
 	public void close() {
 		this.leftMotor.close();
 		this.rightMotor.close();
 		this.headMotor.close();
-		this.irSensor.close();
+		//this.irSensor.close();
 		this.colorSensor.close();
+	}
+	
+	public EV3 getBrick() {
+		return brick;
 	}
 	
 	public RegulatedMotor getLeftMotor() {
@@ -62,8 +64,12 @@ public class LegoRobot {
 		return colorSensor;
 	}
 	
-	public void drawText(String text) {
-		this.brick.getTextLCD().drawString(text, 4, 4);
+	public void drawText(String text, int x, int y) {
+		this.brick.getTextLCD().drawString(text, x, y);
+	}
+	
+	public void lcdClear() {
+		this.brick.getTextLCD().clear();
 	}
 	
 }
