@@ -6,8 +6,10 @@ import lejos.hardware.motor.EV3MediumRegulatedMotor;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
+import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3IRSensor;
+import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.robotics.RegulatedMotor;
 
 public class LegoRobot {
@@ -16,8 +18,8 @@ public class LegoRobot {
 	private RegulatedMotor rightMotor;
 	private RegulatedMotor headMotor;
 	
-	private EV3IRSensor irSensor;
 	private EV3ColorSensor colorSensor;
+	private EV3UltrasonicSensor ultrasonicSensor;
 	
 	public LegoRobot() {
 		this.brick = (EV3) BrickFinder.getLocal();
@@ -30,6 +32,7 @@ public class LegoRobot {
 		
 	    Port s1 = brick.getPort("S1");
 	    this.colorSensor = new EV3ColorSensor(s1);
+	    this.ultrasonicSensor = new EV3UltrasonicSensor(SensorPort.S4);
 	}
 
 	public void close() {
@@ -56,8 +59,8 @@ public class LegoRobot {
 		return headMotor;
 	}
 
-	public EV3IRSensor getIrSensor() {
-		return irSensor;
+	public EV3IRSensor getUltrasonicSensor() {
+		return getUltrasonicSensor();
 	}
 
 	public EV3ColorSensor getColorSensor() {

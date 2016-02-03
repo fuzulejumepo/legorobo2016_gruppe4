@@ -10,14 +10,14 @@ public class SensorWatcher implements Runnable {
 	public static final int LINE_MIN = 1;
 	public static final int LINE_MAX = 2;
 	
-	private EV3IRSensor irSensor;
+	private EV3IRSensor ultrasonicSensor;
 	private EV3ColorSensor colorSensor;
 	
 	private Strategy listener;
 	private RobotState state;
 	
 	public SensorWatcher(LegoRobot robot) {
-		this.irSensor = robot.getIrSensor();
+		this.ultrasonicSensor = robot.getUltrasonicSensor();
 		this.colorSensor = robot.getColorSensor();
 		this.state = RobotState.INITIAL;
 	}
@@ -48,7 +48,7 @@ public class SensorWatcher implements Runnable {
 	
 	private RobotState getNewState() {
 		int colorValue = this.getColorValue();
-		int irValue = this.getIRValue();
+		float ultarsonicValue = this.getUltrasonicValue();
 		if (colorValue > LINE_MIN && colorValue < LINE_MAX) {
 			return RobotState.LINE;
 		}
@@ -57,12 +57,14 @@ public class SensorWatcher implements Runnable {
 		}
 	}
 	
-	private int getIRValue() {
-		return -1;
+	private float getUltrasonicValue() {
+		float[] sample = new float[ultrasonicSensor.sampleSize()];
+		ultrasonicSensor.getDistanceMode().fetchSample(sample, 0);
+		return sample[0];
 	}
 
 	private int getColorValue() {
-		return -1;
+		return colorSensor.getColorID();
 	}
 
 }
