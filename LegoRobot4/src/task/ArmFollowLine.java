@@ -22,9 +22,11 @@ public class ArmFollowLine implements Runnable {
 	public void run() {
 		int followTries;
 		while (true) {
+			followTries = 0;
 			while (armSensor.getColorID() == Color.WHITE) {
 				armMotor.rotate(Constants.sensorArmFollowOffset, true);
-				if (armMotor.isStalled()) return;
+				if (followTries > 2 * Constants.sensorArmFollowTries) return;
+				++followTries;
 			}
 			
 			followTries = 0;

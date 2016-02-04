@@ -6,6 +6,8 @@ import lejos.hardware.motor.Motor;
 import lejos.hardware.port.Port;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.hardware.sensor.SensorMode;
+import lejos.robotics.Color;
 import lejos.robotics.RegulatedMotor;
 
 public class Robot {
@@ -35,8 +37,9 @@ public class Robot {
 	
 	
 	public Robot() {
-		maxSpeedWheel = Math.max((int) leftWheelMotor.getMaxSpeed(),
-								(int) rightWheelMotor.getMaxSpeed());
+		//maxSpeedWheel = Math.max((int) leftWheelMotor.getMaxSpeed(),
+		//						(int) rightWheelMotor.getMaxSpeed());
+		maxSpeedWheel = Constants.wheelMotorSpeed;
 		leftWheelMotor.setSpeed(maxSpeedWheel);
 		rightWheelMotor.setSpeed(maxSpeedWheel);
 		leftWheelMotor.setAcceleration(Constants.wheelMotorAcceleration);
@@ -45,8 +48,8 @@ public class Robot {
 		maxSpeedArm = (int) sensorArmMotor.getMaxSpeed();
 		sensorArmMotor.setSpeed(maxSpeedArm);
 		sensorArmMotor.setAcceleration(Constants.sensorArmMotorAcceleration);
-		
-		
+
+		colorSensor.setFloodlight(true);
 	}
 
 }

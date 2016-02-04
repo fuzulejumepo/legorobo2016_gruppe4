@@ -3,19 +3,17 @@ package main;
 import strategy.*;
 import task.*;
 
-import lejos.hardware.ev3.EV3;
-import lejos.hardware.ev3.LocalEV3;
-import lejos.hardware.motor.Motor;
-import lejos.hardware.port.Port;
-import lejos.hardware.port.SensorPort;
-import lejos.hardware.sensor.EV3ColorSensor;
-import lejos.robotics.RegulatedMotor;
 
 
 public class Main {
 
 	public static void main(String[] args) {
 		final Robot robot = new Robot();
+		
+		//int size = robot.colorSensor.getRedMode().sampleSize();
+		//robot.ev3.getTextLCD().drawInt(size, 4, 3);
+		
+		robot.ev3.getTextLCD().drawString("FollowLine", 2, 1);
 		
 		Strategy currentStrategy = new FollowLineStrategy(robot);
 		currentStrategy.execute();

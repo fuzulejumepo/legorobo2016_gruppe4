@@ -5,6 +5,7 @@ import main.*;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.Color;
 import lejos.robotics.RegulatedMotor;
+import lejos.utility.Delay;
 
 public class WheelFollowLine implements Runnable{
 	
@@ -29,16 +30,23 @@ public class WheelFollowLine implements Runnable{
 		int armPos;
 		while (true) {
 			armPos = armMotor.getTachoCount();
-			if (armPos < robot.sensorArmMid)
-				leftWheelMotor.setSpeed(robot.maxSpeedWheel - 
-										Constants.wheelMotorFollowOffset);
-			else if (armPos > robot.sensorArmMid)
-				rightWheelMotor.setSpeed(robot.maxSpeedWheel - 
-										Constants.wheelMotorFollowOffset);
-			else {
-				leftWheelMotor.setSpeed(robot.maxSpeedWheel);
-				rightWheelMotor.setSpeed(robot.maxSpeedWheel);
+			if (armPos > robot.sensorArmMid) {
+				leftWheelMotor.stop(true);
+				leftWheelMotor.forward();
+			} else if (armPos < robot.sensorArmMid) {
+				rightWheelMotor.stop(true);
+				rightWheelMotor.forward();
 			}
+//			if (armPos < robot.sensorArmMid)
+//				leftWheelMotor.setSpeed(robot.maxSpeedWheel - 
+//										Constants.wheelMotorFollowOffset);
+//			else if (armPos > robot.sensorArmMid)
+//				rightWheelMotor.setSpeed(robot.maxSpeedWheel - 
+//										Constants.wheelMotorFollowOffset);
+//			else {
+//				leftWheelMotor.setSpeed(robot.maxSpeedWheel);
+//				rightWheelMotor.setSpeed(robot.maxSpeedWheel);
+//			}
 		}
 	}
 }
