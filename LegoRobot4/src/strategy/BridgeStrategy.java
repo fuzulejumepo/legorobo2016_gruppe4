@@ -1,6 +1,8 @@
 package strategy;
 
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.hardware.sensor.EV3TouchSensor;
+import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.robotics.RegulatedMotor;
 import main.Robot;
 
@@ -15,13 +17,17 @@ public class BridgeStrategy extends Strategy {
 	
 	//follow edge constants
 	public static final int followEdgeWheelDegree = 50;
-	
+
+	//park constants
+	public static final int wheelMotorParkSpeed = 100;
 	
 	
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
 	protected EV3ColorSensor armSensor;
+	protected EV3TouchSensor touchSensor;
+	protected EV3UltrasonicSensor ultraSensor;
 	
 	
 	public BridgeStrategy(Robot robot) {
@@ -30,6 +36,8 @@ public class BridgeStrategy extends Strategy {
 		this.leftWheelMotor = robot.leftWheelMotor;
 		this.rightWheelMotor = robot.rightWheelMotor;
 		this.armSensor = robot.colorSensor;
+		this.touchSensor = robot.bumperRightSensor;
+		this.ultraSensor = robot.ultraSensor;
 	}
 	
 	public void execute() {
@@ -38,12 +46,19 @@ public class BridgeStrategy extends Strategy {
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		armSensor.setCurrentMode(armSensor.getColorIDMode().getName());
 		
+		robot.calibrateArm();
+
+		
 		armMotor.backward();
 		robot.ev3.getLED().setPattern(2);
 		findEdge();
 		robot.ev3.getLED().setPattern(1);
 		followEdge();
+		armMotor.stop();
+		robot.ev3.getLED().setPattern(3);
+		parkInFrontOfElevator();
 		robot.ev3.getLED().setPattern(0);
+		
 		leftWheelMotor.startSynchronization();
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
@@ -65,7 +80,11 @@ public class BridgeStrategy extends Strategy {
 	protected void followEdge() {
 		int direction;
 		
-		while (true) {
+		float[] touchSample = { 0.0f };
+		
+		while (touchSample[0] < 1.0f) {
+			touchSensor.fetchSample(touchSample, 0);
+			
 			direction = (armSensor.getColorID() < 0) ? -1 : 1;
 			
 			leftWheelMotor.setSpeed(wheelMotorSpeed + direction * followEdgeWheelDegree);
@@ -73,6 +92,25 @@ public class BridgeStrategy extends Strategy {
 			leftWheelMotor.forward();
 			rightWheelMotor.forward();
 		}
+		leftWheelMotor.stop();
+		rightWheelMotor.stop();
+	}
+	
+	protected void parkInFrontOfElevator() {
+		float[] ultraSample = { 1.0f };
+		
+		robot.centerArm();
+
+		leftWheelMotor.setSpeed(wheelMotorParkSpeed);
+		rightWheelMotor.setSpeed(wheelMotorParkSpeed);
+		//leftWheelMotor.startSynchronization();
+		leftWheelMotor.backward();
+		rightWheelMotor.forward();
+		while (ultraSample[0] > 0.2f)
+			ultraSensor.fetchSample(ultraSample, 0);
+		leftWheelMotor.stop();
+		rightWheelMotor.stop();
+		//leftWheelMotor.endSynchronization();
 	}
 
 }

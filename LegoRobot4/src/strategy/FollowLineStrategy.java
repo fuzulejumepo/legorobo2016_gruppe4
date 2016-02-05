@@ -55,7 +55,7 @@ public class FollowLineStrategy extends Strategy{
 			leftWheelMotor.setSpeed(wheelMotorSpeed);
 			rightWheelMotor.setSpeed(wheelMotorSpeed);
 			robot.ev3.getLED().setPattern(2);
-			searchLine();
+			searchLine(1);
 			leftWheelMotor.setSpeed(wheelMotorSpeed);
 			rightWheelMotor.setSpeed(wheelMotorSpeed);
 			robot.ev3.getLED().setPattern(1);
@@ -72,13 +72,12 @@ public class FollowLineStrategy extends Strategy{
 	}
 	
 	
-	protected void searchLine() {
+	protected void searchLine(int tries) {
 		float[] sample = { 0.0f };
 
 		int direction = 1;
-		int round = 1;
 		
-		while (true) {
+		for (int i = 1; i <= 2 * tries; ++i) {
 			armMotor.rotateTo(robot.sensorArmMin, true);
 			while (armMotor.isMoving()) {
 				armSensor.getRedMode().fetchSample(sample, 0);
@@ -100,11 +99,10 @@ public class FollowLineStrategy extends Strategy{
 			}
 			
 			leftWheelMotor.startSynchronization();
-			leftWheelMotor.rotate(direction * round * wheelsSearchDegree, false);
-			rightWheelMotor.rotateTo(-direction * round * wheelsSearchDegree, false);
+			leftWheelMotor.rotate(direction * i * wheelsSearchDegree, false);
+			rightWheelMotor.rotateTo(-direction * i * wheelsSearchDegree, false);
 			leftWheelMotor.endSynchronization();
 			direction = -direction;
-			round++;
 		}
 	}
 	
@@ -146,5 +144,10 @@ public class FollowLineStrategy extends Strategy{
 			leftWheelMotor.forward();
 			rightWheelMotor.forward();
 		}
+	}
+	
+	
+	protected void searchBarcode() {
+		
 	}
 }

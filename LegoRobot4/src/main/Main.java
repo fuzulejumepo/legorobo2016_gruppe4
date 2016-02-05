@@ -28,7 +28,7 @@ public class Main {
 		Button.ENTER.addKeyListener(listener);
 
 		
-		Strategy currentStrategy = new TestStrategy(robot);
+		Strategy currentStrategy = new BridgeStrategy(robot);
 		currentStrategy.execute();
 		
 		
