@@ -20,6 +20,7 @@ public class Main {
 				robot.bumperRightSensor.close();
 				robot.colorSensor.close();
 				robot.ultraSensor.close();
+				robot.gyroSensor.close();
 				System.exit(0);
 				
 			}
