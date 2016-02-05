@@ -6,6 +6,7 @@ import lejos.hardware.motor.Motor;
 import lejos.hardware.port.Port;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.RegulatedMotor;
 
 public class Robot {
@@ -17,6 +18,8 @@ public class Robot {
 	public final RegulatedMotor rightWheelMotor = Motor.B;
 	public final RegulatedMotor sensorArmMotor = Motor.C;
 	
+	public static final int sensorArmPositionOffset = 110;
+
 	public final int maxSpeedWheel;
 	public final int maxSpeedArm;
 	
@@ -27,8 +30,10 @@ public class Robot {
 	
 	//Sensors
 	private static final Port colorSensorPort = SensorPort.S1;
+	private static final Port gyroSensorPort = SensorPort.S3;
 	
 	public final EV3ColorSensor colorSensor = new EV3ColorSensor(colorSensorPort);
+	public final EV3GyroSensor gyroSensor = new EV3GyroSensor(gyroSensorPort);
 
 	
 	
@@ -47,6 +52,30 @@ public class Robot {
 		sensorArmMotor.setAcceleration(Constants.stdSensorArmMotorAcceleration);
 
 		colorSensor.setFloodlight(true);
+	}
+	
+	
+	public void calibrateArm() {
+		sensorArmMotor.forward();
+		while (!sensorArmMotor.isStalled());
+		int leftMax = sensorArmMotor.getTachoCount();
+		
+		sensorArmMotor.backward();
+		while (!sensorArmMotor.isStalled());
+		int rightMax = sensorArmMotor.getTachoCount();
+		
+		int mid = (leftMax + rightMax) / 2;
+		//armMotor.rotateTo(mid);
+		
+		sensorArmMin = ((leftMax < rightMax) ? leftMax : rightMax);
+		sensorArmMin += sensorArmPositionOffset;
+		sensorArmMax = ((leftMax > rightMax) ? leftMax : rightMax);
+		sensorArmMin -= sensorArmPositionOffset;
+		sensorArmMid = mid;
+	}
+	
+	public void centerArm() {
+		sensorArmMotor.rotateTo(sensorArmMid, false);
 	}
 
 }

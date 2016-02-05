@@ -9,10 +9,18 @@ public class Main {
 	public static void main(String[] args) {
 		final Robot robot = new Robot();
 		
-		robot.ev3.getTextLCD().drawString("FollowLine", 2, 1);
-		
-		Strategy currentStrategy = new FollowLineStrategy(robot);
+//		float[] sample = { 1.0f };
+//
+//		for (int i = 0; i < 6; ++i) {
+//			robot.gyroSensor.getAngleMode().fetchSample(sample, 0);
+//			robot.ev3.getTextLCD().drawString("" + sample[0], 2, 2);
+//			robot.ev3.getKeys().waitForAnyPress();
+//		}
+
+				
+		Strategy currentStrategy = new SuspensionBridgeStrategy(robot);
 		currentStrategy.execute();
+		
 	}
 
 }

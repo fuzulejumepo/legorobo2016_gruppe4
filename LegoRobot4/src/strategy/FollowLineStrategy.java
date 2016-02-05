@@ -9,25 +9,25 @@ import lejos.utility.Delay;
 
 public class FollowLineStrategy extends Strategy{
 
-	//motors
+	//motors constants
 	public static final int wheelMotorSpeed = 300;
 	public static final int sensorArmMotorSpeed = 500;
 
-	//calibrate arm
-	public static final int sensorArmPositionOffset = 110;
+	//sensor detect line constants
 	public static final float lineThreshold = 0.2f;
 
-	//search line
+	//search line constants
 	public static final int sensorArmSearchOffset = 30;
 	public static final int wheelsSearchOffset = 100;
 	public static final int wheelsSearchDegree = 50;
 
-	//follow line
+	//follow line constants
 	public static final int sensorArmFollowOffset = 4;
 	public static final int sensorArmFollowDegree = 90;
 	public static final int sensorArmFollowTurnDegree = 10;
 	public static final float wheelMotorSpeedReduction = 1.18f;
 
+	
 	
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
@@ -44,10 +44,12 @@ public class FollowLineStrategy extends Strategy{
 	}
 	
 	public void execute() {
+		robot.ev3.getTextLCD().drawString("FollowLineStrategy", 2, 2);
+
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		robot.colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
 
-		calibrateArm();
+		robot.calibrateArm();
 		
 		for (int i = 0; i < 1000; ++i) {
 			leftWheelMotor.setSpeed(wheelMotorSpeed);
@@ -69,24 +71,6 @@ public class FollowLineStrategy extends Strategy{
 		rightWheelMotor.setSpeed(wheelMotorSpeed);
 	}
 	
-	protected void calibrateArm() {
-		armMotor.forward();
-		while (!armMotor.isStalled());
-		int leftMax = armMotor.getTachoCount();
-		
-		armMotor.backward();
-		while (!armMotor.isStalled());
-		int rightMax = armMotor.getTachoCount();
-		
-		int mid = (leftMax + rightMax) / 2;
-		//armMotor.rotateTo(mid);
-		
-		robot.sensorArmMin = ((leftMax < rightMax) ? leftMax : rightMax);
-		robot.sensorArmMin += sensorArmPositionOffset;
-		robot.sensorArmMax = ((leftMax > rightMax) ? leftMax : rightMax);
-		robot.sensorArmMin -= sensorArmPositionOffset;
-		robot.sensorArmMid = mid;
-	}
 	
 	protected void searchLine() {
 		float[] sample = { 0.0f };
@@ -126,7 +110,7 @@ public class FollowLineStrategy extends Strategy{
 	
 	protected void followLine() {
 		float[] sample = { 0.0f };
-		int speed = wheelMotorSpeed;
+		int speedOffset;
 		
 
 		boolean turn = true;
@@ -154,11 +138,11 @@ public class FollowLineStrategy extends Strategy{
 			
 			armMotor.rotate(direction * sensorArmFollowOffset, true);
 			
-			speed = (int)((float)(robot.sensorArmMid - armMotor.getTachoCount())
+			speedOffset = (int)((float)(robot.sensorArmMid - armMotor.getTachoCount())
 							* wheelMotorSpeedReduction);
 
-			leftWheelMotor.setSpeed(wheelMotorSpeed + speed);
-			rightWheelMotor.setSpeed(wheelMotorSpeed - speed);
+			leftWheelMotor.setSpeed(wheelMotorSpeed + speedOffset);
+			rightWheelMotor.setSpeed(wheelMotorSpeed - speedOffset);
 			leftWheelMotor.forward();
 			rightWheelMotor.forward();
 		}
