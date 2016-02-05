@@ -1,10 +1,8 @@
 package strategy;
 
 import main.*;
-import task.*;
 
 import lejos.hardware.sensor.EV3ColorSensor;
-import lejos.robotics.Color;
 import lejos.robotics.RegulatedMotor;
 import lejos.utility.Delay;
 
@@ -32,6 +30,8 @@ public class FollowLineStrategy extends Strategy{
 		calibrateArm();
 		
 		for (int i = 0; i < 1000; ++i) {
+			leftWheelMotor.setSpeed(Constants.wheelMotorSpeed);
+			rightWheelMotor.setSpeed(Constants.wheelMotorSpeed);
 			robot.ev3.getLED().setPattern(2);
 			searchLine();
 			robot.ev3.getLED().setPattern(1);
@@ -42,6 +42,9 @@ public class FollowLineStrategy extends Strategy{
 			rightWheelMotor.stop();
 			leftWheelMotor.endSynchronization();
 		}
+		
+		leftWheelMotor.setSpeed(Constants.wheelMotorSpeed);
+		rightWheelMotor.setSpeed(Constants.wheelMotorSpeed);
 		
 		return Status.SUCCESS;
 	}
@@ -58,82 +61,86 @@ public class FollowLineStrategy extends Strategy{
 		int mid = (leftMax + rightMax) / 2;
 		//armMotor.rotateTo(mid);
 		
-		int offset = (leftMax < rightMax) ? Constants.sensorArmOffsetMax : 
-											-Constants.sensorArmOffsetMax;
-		
-		robot.sensorArmMaxLeft = leftMax + offset;
-		robot.sensorArmMaxRight = rightMax - offset;
+		robot.sensorArmMin = ((leftMax < rightMax) ? leftMax : rightMax);
+		robot.sensorArmMin += Constants.sensorArmPositionOffset;
+		robot.sensorArmMax = ((leftMax > rightMax) ? leftMax : rightMax);
+		robot.sensorArmMin -= Constants.sensorArmPositionOffset;
 		robot.sensorArmMid = mid;
 	}
 	
 	protected void searchLine() {
 		float[] sample = { 0.0f };
 
+		int direction = 1;
+		int round = 1;
+		
 		while (true) {
-			armMotor.rotateTo(robot.sensorArmMaxLeft, true);
+			armMotor.rotateTo(robot.sensorArmMin, true);
 			while (armMotor.isMoving()) {
 				armSensor.getRedMode().fetchSample(sample, 0);
 				if (sample[0] > Constants.lineThreshold) {
 					armMotor.stop(false);
+					armMotor.rotate(Constants.sensorArmSearchOffset, false);
 					return;
 				}
 			}
 
-			armMotor.rotateTo(robot.sensorArmMaxRight, true);
+			armMotor.rotateTo(robot.sensorArmMax, true);
 			while (armMotor.isMoving()) {
 				armSensor.getRedMode().fetchSample(sample, 0);
 				if (sample[0] > Constants.lineThreshold) {
 					armMotor.stop(false);
-					armMotor.rotate(Constants.sensorArmReverseOffset, false);
+					armMotor.rotate(Constants.sensorArmSearchOffset, false);
 					return;
 				}
 			}
+			
+			leftWheelMotor.startSynchronization();
+			leftWheelMotor.rotate(direction * round * Constants.wheelsSearchDegree, false);
+			rightWheelMotor.rotateTo(-direction * round * Constants.wheelsSearchDegree, false);
+			leftWheelMotor.endSynchronization();
+			direction = -direction;
+			round++;
 		}
 	}
 	
 	protected void followLine() {
 		float[] sample = { 0.0f };
-		int followTriesOnLine = 0;
-		int followTriesOffLine = 0;
 		int speed = Constants.wheelMotorSpeed;
 		
-//		leftWheelMotor.forward();
-//		rightWheelMotor.forward();
+
+		boolean turn = true;
+		int turnDegree = armMotor.getTachoCount();
+		int degreeDiff = 0;
+		int direction = -1;
 		
 		while (true) {
+			degreeDiff = Math.abs(armMotor.getTachoCount() - turnDegree);
 			armSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) { //above white line
-				armMotor.rotate(Constants.sensorArmFollowOffset
-								+ followTriesOnLine / 50, true);
-				followTriesOnLine++;
-				followTriesOffLine = 0;
+				if (degreeDiff > Constants.sensorArmFollowTurnDegree)
+					turn = false;
 			} else { //above black surface
-				armMotor.rotate(-Constants.sensorArmFollowOffset
-								- followTriesOffLine / 50, true);
-				if (followTriesOffLine > Constants.sensorArmFollowTries)
-					return;
-				followTriesOnLine = 0;
-				followTriesOffLine++;
+				if (!turn) {
+					turn = true;
+					direction = -direction;
+					turnDegree = armMotor.getTachoCount();
+				}
 			}
+			if (degreeDiff > Constants.sensorArmFollowDegree ||
+					armMotor.getTachoCount() < robot.sensorArmMin ||
+					armMotor.getTachoCount() > robot.sensorArmMax)
+				return;
 			
-			speed = (int) ((float) Constants.wheelMotorSpeed  
-					- Math.abs(armMotor.getTachoCount() - robot.sensorArmMid)
-					* Math.abs(armMotor.getTachoCount() - robot.sensorArmMid)
-					* Constants.wheelMotorSpeedReduction);
+			armMotor.rotate(direction * Constants.sensorArmFollowOffset, true);
+			
+			speed = (int)((float)(robot.sensorArmMid - armMotor.getTachoCount())
+							* Constants.wheelMotorSpeedReduction);
 
-			int armPos = armMotor.getTachoCount();
-			
-			if (armPos < robot.sensorArmMid) {
-				leftWheelMotor.setSpeed(speed);
-				rightWheelMotor.setSpeed(Constants.wheelMotorSpeed);
-			} else {
-				leftWheelMotor.setSpeed(Constants.wheelMotorSpeed);
-				rightWheelMotor.setSpeed(speed);
-			}
-			leftWheelMotor.startSynchronization();
+			leftWheelMotor.setSpeed(Constants.wheelMotorSpeed + speed);
+			rightWheelMotor.setSpeed(Constants.wheelMotorSpeed - speed);
 			leftWheelMotor.forward();
 			rightWheelMotor.forward();
-			leftWheelMotor.endSynchronization();
 		}
 	}
 }
