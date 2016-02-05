@@ -21,11 +21,12 @@ public class LabyrinthStrategy extends Strategy {
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
-	protected EV3TouchSensor touchSensorFront = robot.bumperSensor;
+//	protected EV3TouchSensor touchSensorLeft = robot.bumperLeftSensor;   touchedLeft[0] != 1.0 && 
+	protected EV3TouchSensor touchSensorRight = robot.bumperRightSensor;
 	protected EV3UltrasonicSensor ultraSensor = robot.ultraSensor;
 	protected SampleProvider ultra = ultraSensor.getMode("Distance");
-	static int speed = 500;
-	static int factor = 1700;
+	static int speed = 450;
+	static int factor = 950;
 
 	public LabyrinthStrategy(Robot robot) {
 		super(robot);
@@ -36,23 +37,26 @@ public class LabyrinthStrategy extends Strategy {
 
 	@Override
 	public void execute() {
-		float[] touched = new float[touchSensorFront.sampleSize()];
+//		float[] touchedLeft = new float[touchSensorLeft.sampleSize()];
+		float[] touchedRight = new float[touchSensorRight.sampleSize()];
 		float[] distances = new float[ultraSensor.sampleSize()];
 		leftWheelMotor.forward();
 		rightWheelMotor.forward();
 		while (true) {
-			while (touched[0] != 1.0) {
-				touchSensorFront.fetchSample(touched, 0);
+			while (touchedRight[0] != 1.0) {
+//				touchSensorLeft.fetchSample(touchedLeft, 0);
+				touchSensorRight.fetchSample(touchedRight, 0);
 				ultra.fetchSample(distances, 0);
 				double distance = distances[0] - 0.07;
 				// lcd.drawString(" " + distance, 3, 3);
-				leftWheelMotor.setSpeed((int) (speed + (factor * distance)));
+				leftWheelMotor.setSpeed((int) (speed + 50 +(factor * distance)));
 				rightWheelMotor.setSpeed((int) (speed - (factor * distance)));
 				leftWheelMotor.forward();
 				rightWheelMotor.forward();
 			}
 			leftWheelMotor.rotate(-350, false);
-			touchSensorFront.fetchSample(touched, 0);
+//			touchSensorLeft.fetchSample(touchedLeft, 0);
+			touchSensorRight.fetchSample(touchedRight, 0);
 		}
 		// irSensor.close();
 		// leftMotor.close();
