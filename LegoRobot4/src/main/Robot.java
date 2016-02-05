@@ -37,14 +37,14 @@ public class Robot {
 	public Robot() {
 		maxSpeedWheel = Math.max((int) leftWheelMotor.getMaxSpeed(),
 								(int) rightWheelMotor.getMaxSpeed());
-		leftWheelMotor.setSpeed(Constants.wheelMotorSpeed);
-		rightWheelMotor.setSpeed(Constants.wheelMotorSpeed);
-		leftWheelMotor.setAcceleration(Constants.wheelMotorAcceleration);
-		rightWheelMotor.setAcceleration(Constants.wheelMotorAcceleration);
+		leftWheelMotor.setSpeed(Constants.stdWheelMotorSpeed);
+		rightWheelMotor.setSpeed(Constants.stdWheelMotorSpeed);
+		leftWheelMotor.setAcceleration(Constants.stdWheelMotorAcceleration);
+		rightWheelMotor.setAcceleration(Constants.stdWheelMotorAcceleration);
 		
 		maxSpeedArm = (int) sensorArmMotor.getMaxSpeed();
-		sensorArmMotor.setSpeed(Constants.sensorArmMotorSpeed);
-		sensorArmMotor.setAcceleration(Constants.sensorArmMotorAcceleration);
+		sensorArmMotor.setSpeed(Constants.stdSensorArmMotorSpeed);
+		sensorArmMotor.setAcceleration(Constants.stdSensorArmMotorAcceleration);
 
 		colorSensor.setFloodlight(true);
 	}

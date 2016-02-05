@@ -10,6 +10,6 @@ public abstract class Strategy {
 		this.robot = robot;
 	}
 	
-	public abstract Status execute();
+	public abstract void execute();
 	
 }
