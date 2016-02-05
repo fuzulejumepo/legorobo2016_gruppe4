@@ -28,9 +28,14 @@ public class Main {
 		Button.ENTER.addKeyListener(listener);
 
 		
-		Strategy currentStrategy = new LabyrinthStrategy(robot);
+		Strategy currentStrategy = new TestStrategy(robot);
 		currentStrategy.execute();
 		
+		
+		robot.bumperRightSensor.close();
+		robot.colorSensor.close();
+		robot.ultraSensor.close();
+		robot.gyroSensor.close();
 	}
 
 }
