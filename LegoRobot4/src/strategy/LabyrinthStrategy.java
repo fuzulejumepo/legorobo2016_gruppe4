@@ -26,7 +26,7 @@ public class LabyrinthStrategy extends Strategy {
 	protected EV3UltrasonicSensor ultraSensor = robot.ultraSensor;
 	protected SampleProvider ultra = ultraSensor.getMode("Distance");
 	static int speed = 450;
-	static int factor = 950;
+	static int factor = 1025;
 
 	public LabyrinthStrategy(Robot robot) {
 		super(robot);
@@ -49,8 +49,8 @@ public class LabyrinthStrategy extends Strategy {
 				ultra.fetchSample(distances, 0);
 				double distance = distances[0] - 0.07;
 				// lcd.drawString(" " + distance, 3, 3);
-				leftWheelMotor.setSpeed((int) (speed + 50 +(factor * distance)));
-				rightWheelMotor.setSpeed((int) (speed - (factor * distance)));
+				leftWheelMotor.setSpeed((int) (speed + (factor * distance)));
+				rightWheelMotor.setSpeed((int) (speed + - (factor * distance)));
 				leftWheelMotor.forward();
 				rightWheelMotor.forward();
 			}

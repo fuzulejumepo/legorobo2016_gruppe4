@@ -30,12 +30,14 @@ public class Robot {
 	//Sensors
 	private static final Port colorSensorPort = SensorPort.S1;
 	private static final Port ultraSensorPort = SensorPort.S4;
-	private static final Port bumperFrontSensorPort = SensorPort.S2;
+	private static final Port bumperRightSensorPort = SensorPort.S2;
+	private static final Port bumperLeftSensorPort = SensorPort.S3;
 	
 	
 	public final EV3ColorSensor colorSensor = new EV3ColorSensor(colorSensorPort);
 	public final EV3UltrasonicSensor ultraSensor = new EV3UltrasonicSensor(ultraSensorPort);
-	public final EV3TouchSensor bumperSensor = new EV3TouchSensor(bumperFrontSensorPort);
+	public final EV3TouchSensor bumperLeftSensor = new EV3TouchSensor(bumperLeftSensorPort);
+	public final EV3TouchSensor bumperRightSensor = new EV3TouchSensor(bumperRightSensorPort);
 
 	
 	
