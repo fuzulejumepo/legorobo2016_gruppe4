@@ -6,6 +6,8 @@ import lejos.hardware.motor.Motor;
 import lejos.hardware.port.Port;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.hardware.sensor.EV3TouchSensor;
+import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.robotics.RegulatedMotor;
 
 public class Robot {
@@ -27,8 +29,13 @@ public class Robot {
 	
 	//Sensors
 	private static final Port colorSensorPort = SensorPort.S1;
+	private static final Port ultraSensorPort = SensorPort.S4;
+	private static final Port bumperFrontSensorPort = SensorPort.S2;
+	
 	
 	public final EV3ColorSensor colorSensor = new EV3ColorSensor(colorSensorPort);
+	public final EV3UltrasonicSensor ultraSensor = new EV3UltrasonicSensor(ultraSensorPort);
+	public final EV3TouchSensor bumperSensor = new EV3TouchSensor(bumperFrontSensorPort);
 
 	
 	
