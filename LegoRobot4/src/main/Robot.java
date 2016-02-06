@@ -81,4 +81,14 @@ public class Robot {
 		sensorArmMotor.rotateTo(sensorArmMid, false);
 	}
 
+	public void close() {
+		this.leftWheelMotor.close();
+		this.rightWheelMotor.close();
+		this.sensorArmMotor.close();
+		
+		this.colorSensor.close();
+		this.ultraSensor.close();
+		this.bumperRightSensor.close();
+		this.gyroSensor.close();
+	}
 }

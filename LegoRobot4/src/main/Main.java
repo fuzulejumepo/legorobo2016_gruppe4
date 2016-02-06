@@ -31,11 +31,7 @@ public class Main {
 		Strategy currentStrategy = new BridgeStrategy(robot);
 		currentStrategy.execute();
 		
-		
-		robot.bumperRightSensor.close();
-		robot.colorSensor.close();
-		robot.ultraSensor.close();
-		robot.gyroSensor.close();
+		robot.close();
 	}
 
 }
