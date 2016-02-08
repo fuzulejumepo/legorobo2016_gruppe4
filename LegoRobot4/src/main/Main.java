@@ -26,10 +26,19 @@ public class Main {
 			}
 		};
 		Button.ENTER.addKeyListener(listener);
-
 		
-		Strategy currentStrategy = new BridgeStrategy(robot);
-		currentStrategy.execute();
+
+		robot.ev3.getLED().setPattern(0);
+		robot.calibrateArm();
+		robot.centerArm();
+		
+		Strategy currentStrategy;
+		for (int i = 0; i < 100; ++i) {
+			currentStrategy = new FollowLineStrategy(robot);
+			currentStrategy.execute();
+			currentStrategy = new FindBarcodeStrategy(robot);
+			currentStrategy.execute();
+		}
 		
 		robot.close();
 	}
