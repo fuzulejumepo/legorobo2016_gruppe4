@@ -29,7 +29,7 @@ public class FollowLineStrategy extends Strategy{
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
-	protected EV3ColorSensor armSensor;
+	protected EV3ColorSensor colorSensor;
 	
 	
 	public FollowLineStrategy(Robot robot) {
@@ -37,14 +37,14 @@ public class FollowLineStrategy extends Strategy{
 		this.armMotor = robot.sensorArmMotor;
 		this.leftWheelMotor = robot.leftWheelMotor;
 		this.rightWheelMotor = robot.rightWheelMotor;
-		this.armSensor = robot.colorSensor;
+		this.colorSensor = robot.colorSensor;
 	}
 	
 	public void execute() {
 		robot.ev3.getTextLCD().drawString("FollowLineStrategy", 2, 2);
 
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
-		robot.colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
+		colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
 
 		//robot.calibrateArm();
 		armMotor.setSpeed(sensorArmMotorSpeed);
@@ -77,7 +77,7 @@ public class FollowLineStrategy extends Strategy{
 
 		armMotor.rotateTo(robot.sensorArmMin, true);
 		while (armMotor.isMoving()) {
-			armSensor.getRedMode().fetchSample(sample, 0);
+			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) {
 				armMotor.stop(false);
 				armMotor.rotate(sensorArmSearchOffset, false);
@@ -87,7 +87,7 @@ public class FollowLineStrategy extends Strategy{
 		
 		armMotor.rotateTo(robot.sensorArmMax, true);
 		while (armMotor.isMoving()) {
-			armSensor.getRedMode().fetchSample(sample, 0);
+			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) {
 				armMotor.stop(false);
 				armMotor.rotate(-sensorArmSearchOffset, false);
@@ -100,7 +100,7 @@ public class FollowLineStrategy extends Strategy{
 		leftWheelMotor.rotate(-wheelsSearchDegree, true);
 		rightWheelMotor.rotate(wheelsSearchDegree, false);
 		while (leftWheelMotor.isMoving()) {
-			armSensor.getRedMode().fetchSample(sample, 0);
+			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) {
 				armMotor.stop(false);
 				return true;
@@ -113,7 +113,7 @@ public class FollowLineStrategy extends Strategy{
 		leftWheelMotor.rotate(2 * wheelsSearchDegree, true);
 		rightWheelMotor.rotate(-2 * wheelsSearchDegree, false);
 		while (leftWheelMotor.isMoving()) {
-			armSensor.getRedMode().fetchSample(sample, 0);
+			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) {
 				armMotor.stop(false);
 				return true;
@@ -138,7 +138,7 @@ public class FollowLineStrategy extends Strategy{
 		
 		while (true) {
 			degreeDiff = Math.abs(armMotor.getTachoCount() - turnDegree);
-			armSensor.getRedMode().fetchSample(sample, 0);
+			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) { //above white line
 				if (degreeDiff > sensorArmFollowTurnDegree)
 					turn = false;

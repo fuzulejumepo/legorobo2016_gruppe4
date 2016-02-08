@@ -23,7 +23,7 @@ public class FindBarcodeStrategy extends Strategy {
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
-	protected EV3ColorSensor armSensor;
+	protected EV3ColorSensor colorSensor;
 	
 	
 	public FindBarcodeStrategy(Robot robot) {
@@ -31,14 +31,14 @@ public class FindBarcodeStrategy extends Strategy {
 		this.armMotor = robot.sensorArmMotor;
 		this.leftWheelMotor = robot.leftWheelMotor;
 		this.rightWheelMotor = robot.rightWheelMotor;
-		this.armSensor = robot.colorSensor;
+		this.colorSensor = robot.colorSensor;
 	}
 	
 	public void execute() {
 		robot.ev3.getTextLCD().drawString("FindBarcodeStrategy", 2, 2);
 
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
-		robot.colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
+		colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
 
 		//robot.calibrateArm();
 		robot.centerArm();
@@ -65,7 +65,7 @@ public class FindBarcodeStrategy extends Strategy {
 		
 		float[] sample = { 0.0f };
 		while (sample[0] < Constants.lineThreshold) {
-			armSensor.getRedMode().fetchSample(sample, 0);
+			colorSensor.getRedMode().fetchSample(sample, 0);
 		}
 		
 		leftWheelMotor.rotate(wheelMotorSearchAngle, true);
@@ -81,7 +81,7 @@ public class FindBarcodeStrategy extends Strategy {
 		armMotor.rotateTo(robot.sensorArmMin, false);
 		armMotor.rotate(robot.sensorArmDegree / 3, true);
 		while (armMotor.isMoving()) {
-			armSensor.getRedMode().fetchSample(sample, 0);
+			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) {
 				armMotor.stop(false);
 				minBarPos = armMotor.getTachoCount();
@@ -91,7 +91,7 @@ public class FindBarcodeStrategy extends Strategy {
 		armMotor.rotateTo(robot.sensorArmMax, false);
 		armMotor.rotate(-robot.sensorArmDegree / 3, true);
 		while (armMotor.isMoving()) {
-			armSensor.getRedMode().fetchSample(sample, 0);
+			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) {
 				armMotor.stop(false);
 				maxBarPos = armMotor.getTachoCount();

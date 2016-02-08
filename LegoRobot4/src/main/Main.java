@@ -17,10 +17,7 @@ public class Main {
 			public void keyReleased(Key k) {}
 			@Override
 			public void keyPressed(Key k) {
-				robot.bumperRightSensor.close();
-				robot.colorSensor.close();
-				robot.ultraSensor.close();
-				robot.gyroSensor.close();
+				robot.close();
 				System.exit(0);
 				
 			}
@@ -36,7 +33,7 @@ public class Main {
 		for (int i = 0; i < 100; ++i) {
 			currentStrategy = new FollowLineStrategy(robot);
 			currentStrategy.execute();
-			currentStrategy = new FindBarcodeStrategy(robot);
+			currentStrategy = new SuspensionBridgeStrategy(robot);
 			currentStrategy.execute();
 		}
 		

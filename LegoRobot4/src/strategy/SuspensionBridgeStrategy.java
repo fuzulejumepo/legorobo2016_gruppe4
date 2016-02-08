@@ -3,6 +3,7 @@ package strategy;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.RegulatedMotor;
+import main.Constants;
 import main.Robot;
 
 public class SuspensionBridgeStrategy extends Strategy {
@@ -22,7 +23,7 @@ public class SuspensionBridgeStrategy extends Strategy {
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
-	protected EV3ColorSensor armSensor;
+	protected EV3ColorSensor colorSensor;
 	protected EV3GyroSensor gyroSensor;
 
 
@@ -31,7 +32,7 @@ public class SuspensionBridgeStrategy extends Strategy {
 		this.armMotor = robot.sensorArmMotor;
 		this.leftWheelMotor = robot.leftWheelMotor;
 		this.rightWheelMotor = robot.rightWheelMotor;
-		this.armSensor = robot.colorSensor;
+		this.colorSensor = robot.colorSensor;
 		this.gyroSensor = robot.gyroSensor;
 	}
 
@@ -39,49 +40,49 @@ public class SuspensionBridgeStrategy extends Strategy {
 		robot.ev3.getTextLCD().drawString("BridgeStrategy", 2, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
-		armSensor.setCurrentMode(armSensor.getColorIDMode().getName());
+		colorSensor.setCurrentMode(colorSensor.getRedMode().getName());
 		
-		robot.calibrateArm();
+		//robot.calibrateArm();
 		robot.centerArm();
-		robot.ev3.getLED().setPattern(2);
+		//robot.ev3.getLED().setPattern(2);
 		//moveUp();
-		robot.ev3.getLED().setPattern(1);
+		robot.ev3.getLED().setPattern(8);
 		crossBridge();
 		robot.ev3.getLED().setPattern(0);
-		leftWheelMotor.startSynchronization();
+		//leftWheelMotor.startSynchronization();
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
-		leftWheelMotor.endSynchronization();
+		//leftWheelMotor.endSynchronization();
 	}
 	
-	protected void moveUp() {
-		armMotor.rotateTo(robot.sensorArmMid, false);
-		
-		leftWheelMotor.setSpeed(wheelMotorSpeed);
-		rightWheelMotor.setSpeed(wheelMotorSpeed);
-		leftWheelMotor.forward();
-		rightWheelMotor.forward();
-		
-		boolean done = false;
-		int newLeftWheelPos;
-		int newRightWheelPos;
-		int lastLeftWheelPos = leftWheelMotor.getTachoCount();
-		int lastRightWheelPos = rightWheelMotor.getTachoCount();
-		while (!done) {
-			newLeftWheelPos = leftWheelMotor.getTachoCount();
-			newRightWheelPos = rightWheelMotor.getTachoCount();
-			if (armSensor.getColorID() >= 0) {
-				lastLeftWheelPos = newLeftWheelPos;
-				lastRightWheelPos = newRightWheelPos;
-			}
-			if (Math.abs(newLeftWheelPos - lastLeftWheelPos) > moveWheelDegree &&
-					Math.abs(newRightWheelPos - lastRightWheelPos) > moveWheelDegree)
-				done = true;
-		}
-		
-		leftWheelMotor.stop();
-		rightWheelMotor.stop();
-	}
+//	protected void moveUp() {
+//		armMotor.rotateTo(robot.sensorArmMid, false);
+//		
+//		leftWheelMotor.setSpeed(wheelMotorSpeed);
+//		rightWheelMotor.setSpeed(wheelMotorSpeed);
+//		leftWheelMotor.forward();
+//		rightWheelMotor.forward();
+//		
+//		boolean done = false;
+//		int newLeftWheelPos;
+//		int newRightWheelPos;
+//		int lastLeftWheelPos = leftWheelMotor.getTachoCount();
+//		int lastRightWheelPos = rightWheelMotor.getTachoCount();
+//		while (!done) {
+//			newLeftWheelPos = leftWheelMotor.getTachoCount();
+//			newRightWheelPos = rightWheelMotor.getTachoCount();
+//			if (armSensor.getColorID() >= 0) {
+//				lastLeftWheelPos = newLeftWheelPos;
+//				lastRightWheelPos = newRightWheelPos;
+//			}
+//			if (Math.abs(newLeftWheelPos - lastLeftWheelPos) > moveWheelDegree &&
+//					Math.abs(newRightWheelPos - lastRightWheelPos) > moveWheelDegree)
+//				done = true;
+//		}
+//		
+//		leftWheelMotor.stop();
+//		rightWheelMotor.stop();
+//	}
 	
 	protected void crossBridge() {
 		leftWheelMotor.stop();
@@ -90,19 +91,22 @@ public class SuspensionBridgeStrategy extends Strategy {
 		gyroSensor.reset();
 		
 		gyroSensor.getAngleMode().fetchSample(startDirection, 0);
-		float[] sample = { 0.0f };
+		float[] gyroSample = { 0.0f };
 		int speedOffset;
+		float[] colorSample = { 0.0f };
 
-		while (true) {
-			gyroSensor.getAngleMode().fetchSample(sample, 0);
+		while (colorSample[0] < Constants.lineThreshold) {
+			gyroSensor.getAngleMode().fetchSample(gyroSample, 0);
 
-			speedOffset = (int)(sample[0] - startDirection[0])
+			speedOffset = (int)(gyroSample[0] - startDirection[0])
 							* wheelMotorSpeedCorrection;
 
 			leftWheelMotor.setSpeed(wheelMotorSpeed + speedOffset);
 			rightWheelMotor.setSpeed(wheelMotorSpeed - speedOffset);
 			leftWheelMotor.forward();
 			rightWheelMotor.forward();
+			
+			colorSensor.getRedMode().fetchSample(colorSample, 0);
 		}
 	}
 

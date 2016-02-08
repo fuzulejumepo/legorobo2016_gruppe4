@@ -25,7 +25,7 @@ public class BridgeStrategy extends Strategy {
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
-	protected EV3ColorSensor armSensor;
+	protected EV3ColorSensor colorSensor;
 	protected EV3TouchSensor touchSensor;
 	protected EV3UltrasonicSensor ultraSensor;
 	
@@ -35,7 +35,7 @@ public class BridgeStrategy extends Strategy {
 		this.armMotor = robot.sensorArmMotor;
 		this.leftWheelMotor = robot.leftWheelMotor;
 		this.rightWheelMotor = robot.rightWheelMotor;
-		this.armSensor = robot.colorSensor;
+		this.colorSensor = robot.colorSensor;
 		this.touchSensor = robot.bumperRightSensor;
 		this.ultraSensor = robot.ultraSensor;
 	}
@@ -44,7 +44,7 @@ public class BridgeStrategy extends Strategy {
 		robot.ev3.getTextLCD().drawString("BridgeStrategy", 2, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
-		armSensor.setCurrentMode(armSensor.getColorIDMode().getName());
+		colorSensor.setCurrentMode(colorSensor.getColorIDMode().getName());
 		
 		robot.calibrateArm();
 
@@ -71,7 +71,7 @@ public class BridgeStrategy extends Strategy {
 		leftWheelMotor.forward();
 		rightWheelMotor.forward();
 		
-		while (armSensor.getColorID() >= 0);
+		while (colorSensor.getColorID() >= 0);
 		
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
@@ -85,7 +85,7 @@ public class BridgeStrategy extends Strategy {
 		while (touchSample[0] < 1.0f) {
 			touchSensor.fetchSample(touchSample, 0);
 			
-			direction = (armSensor.getColorID() < 0) ? -1 : 1;
+			direction = (colorSensor.getColorID() < 0) ? -1 : 1;
 			
 			leftWheelMotor.setSpeed(wheelMotorSpeed + direction * followEdgeWheelDegree);
 			rightWheelMotor.setSpeed(wheelMotorSpeed - direction * followEdgeWheelDegree);
@@ -103,14 +103,13 @@ public class BridgeStrategy extends Strategy {
 
 		leftWheelMotor.setSpeed(wheelMotorParkSpeed);
 		rightWheelMotor.setSpeed(wheelMotorParkSpeed);
-		//leftWheelMotor.startSynchronization();
+		
 		leftWheelMotor.backward();
 		rightWheelMotor.forward();
 		while (ultraSample[0] > 0.2f)
 			ultraSensor.fetchSample(ultraSample, 0);
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
-		//leftWheelMotor.endSynchronization();
 	}
 
 }
