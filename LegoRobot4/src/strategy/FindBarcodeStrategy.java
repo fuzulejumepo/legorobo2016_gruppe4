@@ -52,6 +52,8 @@ public class FindBarcodeStrategy extends Strategy {
 				robot.ev3.getLED().setPattern(5);
 			Delay.msDelay(1500);
 		}
+		
+		robot.setStatus(Status.BARCODE_READ);
 	}
 	
 	

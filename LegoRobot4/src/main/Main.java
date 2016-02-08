@@ -30,12 +30,60 @@ public class Main {
 		robot.calibrateArm();
 		//robot.centerArm();
 		
-		Strategy currentStrategy;
+		/*Strategy currentStrategy;
 		for (int i = 0; i < 100; ++i) {
 			//currentStrategy = new FollowLineStrategy(robot);
 			//currentStrategy.execute();
 			currentStrategy = new SuspensionBridgeStrategy(robot);
 			currentStrategy.execute();
+		}*/
+		
+		Strategy currentStrategy = null;
+		Status status = robot.getStatus();
+		
+		while (status != Status.FINISH) {
+			System.out.println(status);
+			switch (status) {
+				case START:
+					currentStrategy = new LabyrinthStrategy(robot);
+					break;
+				case BARCODE_FIND:
+					currentStrategy = new FindBarcodeStrategy(robot);
+					break;
+				case BARCODE_READ:
+					currentStrategy = null;
+					break;
+				case LINE:
+					currentStrategy = new FollowLineStrategy(robot);
+					break;
+				case BRIDGE:
+					currentStrategy = new BridgeStrategy(robot);
+					break;
+				case SEESAW: 
+					currentStrategy = null;
+					break;
+				case SUSPENSE: 
+					currentStrategy = new SuspensionBridgeStrategy(robot);
+					break;
+				case SWAMP: 
+					currentStrategy = null;
+					break;
+				case RACE: 
+					currentStrategy = null;
+					break;
+				default:
+					currentStrategy = null;
+			}
+			
+			if (currentStrategy != null) {
+				currentStrategy.execute();
+				status = robot.getStatus();
+			}
+			else {
+				robot.ev3.getLED().setPattern(1);
+				System.out.println("No strategy found!");
+				break;
+			}
 		}
 		
 		robot.close();
