@@ -3,6 +3,7 @@ package main;
 import lejos.hardware.Button;
 import lejos.hardware.Key;
 import lejos.hardware.KeyListener;
+import lejos.utility.Delay;
 import strategy.*;
 
 
@@ -27,12 +28,12 @@ public class Main {
 
 		robot.ev3.getLED().setPattern(0);
 		robot.calibrateArm();
-		robot.centerArm();
+		//robot.centerArm();
 		
 		Strategy currentStrategy;
 		for (int i = 0; i < 100; ++i) {
-			currentStrategy = new FollowLineStrategy(robot);
-			currentStrategy.execute();
+			//currentStrategy = new FollowLineStrategy(robot);
+			//currentStrategy.execute();
 			currentStrategy = new SuspensionBridgeStrategy(robot);
 			currentStrategy.execute();
 		}

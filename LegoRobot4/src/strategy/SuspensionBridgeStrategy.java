@@ -2,17 +2,23 @@ package strategy;
 
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
+import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.robotics.RegulatedMotor;
+import lejos.utility.Delay;
 import main.Constants;
 import main.Robot;
 
 public class SuspensionBridgeStrategy extends Strategy {
 	//motors constants
-	public static final int wheelMotorSpeed = 500;
-	public static final int sensorArmMotorSpeed = 500;
+	public static final int wheelMotorSpeed = 270;
+	
+	//follow line constants
+	public static final int wheelsSearchDegree = 320;
 
-	//up down constants
-	public static final int moveWheelDegree = 1000;
+	//adjust constants
+	public static final int moveWheelEnterBridge = 400;
+	public static final int moveWheelCorrection = 600;
+	public static final int wheelCorrectionFactor = 1100;
 	
 	public static final int wheelMotorSpeedCorrection = 4;
 	
@@ -24,6 +30,7 @@ public class SuspensionBridgeStrategy extends Strategy {
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
 	protected EV3ColorSensor colorSensor;
+	protected EV3UltrasonicSensor ultraSensor;
 	protected EV3GyroSensor gyroSensor;
 
 
@@ -33,6 +40,7 @@ public class SuspensionBridgeStrategy extends Strategy {
 		this.leftWheelMotor = robot.leftWheelMotor;
 		this.rightWheelMotor = robot.rightWheelMotor;
 		this.colorSensor = robot.colorSensor;
+		this.ultraSensor = robot.ultraSensor;
 		this.gyroSensor = robot.gyroSensor;
 	}
 
@@ -42,47 +50,82 @@ public class SuspensionBridgeStrategy extends Strategy {
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		colorSensor.setCurrentMode(colorSensor.getRedMode().getName());
 		
-		//robot.calibrateArm();
+		leftWheelMotor.setSpeed(wheelMotorSpeed);
+		rightWheelMotor.setSpeed(wheelMotorSpeed);
+		
 		robot.centerArm();
-		//robot.ev3.getLED().setPattern(2);
-		//moveUp();
+		armMotor.stop(false);
+		
+		//robot.centerArm();
+		robot.ev3.getLED().setPattern(1);
+		followLine();
+		robot.ev3.getLED().setPattern(2);
+		//adjustInFrontOfBridge();
 		robot.ev3.getLED().setPattern(8);
-		crossBridge();
+		Delay.msDelay(1000);
+		//crossBridge();
 		robot.ev3.getLED().setPattern(0);
-		//leftWheelMotor.startSynchronization();
-		leftWheelMotor.stop();
-		rightWheelMotor.stop();
-		//leftWheelMotor.endSynchronization();
 	}
 	
-//	protected void moveUp() {
-//		armMotor.rotateTo(robot.sensorArmMid, false);
-//		
-//		leftWheelMotor.setSpeed(wheelMotorSpeed);
-//		rightWheelMotor.setSpeed(wheelMotorSpeed);
-//		leftWheelMotor.forward();
-//		rightWheelMotor.forward();
-//		
-//		boolean done = false;
-//		int newLeftWheelPos;
-//		int newRightWheelPos;
-//		int lastLeftWheelPos = leftWheelMotor.getTachoCount();
-//		int lastRightWheelPos = rightWheelMotor.getTachoCount();
-//		while (!done) {
-//			newLeftWheelPos = leftWheelMotor.getTachoCount();
-//			newRightWheelPos = rightWheelMotor.getTachoCount();
-//			if (armSensor.getColorID() >= 0) {
-//				lastLeftWheelPos = newLeftWheelPos;
-//				lastRightWheelPos = newRightWheelPos;
-//			}
-//			if (Math.abs(newLeftWheelPos - lastLeftWheelPos) > moveWheelDegree &&
-//					Math.abs(newRightWheelPos - lastRightWheelPos) > moveWheelDegree)
-//				done = true;
-//		}
-//		
-//		leftWheelMotor.stop();
-//		rightWheelMotor.stop();
-//	}
+	protected void followLine() {
+		float[] sample = { 1.0f };
+		
+		int lastDirection = 1;
+		
+		while (true) {
+			leftWheelMotor.forward();
+			rightWheelMotor.forward();
+			while (sample[0] >= Constants.lineThreshold)
+				colorSensor.getRedMode().fetchSample(sample, 0);
+			//leftWheelMotor.stop(true);
+			//rightWheelMotor.stop(false);
+			
+			leftWheelMotor.rotate(lastDirection * wheelsSearchDegree, true);
+			rightWheelMotor.rotate(-lastDirection * wheelsSearchDegree, true);
+			while (rightWheelMotor.isMoving() && sample[0] < Constants.lineThreshold)
+				colorSensor.getRedMode().fetchSample(sample, 0);
+			leftWheelMotor.stop(true);
+			rightWheelMotor.stop(false);
+			
+			if (sample[0] >= Constants.lineThreshold)
+				continue;
+			
+			lastDirection = -lastDirection;
+			
+			leftWheelMotor.rotate(lastDirection * 2 * wheelsSearchDegree, true);
+			rightWheelMotor.rotate(-lastDirection * 2 * wheelsSearchDegree, true);
+			while (rightWheelMotor.isMoving() && sample[0] < Constants.lineThreshold)
+				colorSensor.getRedMode().fetchSample(sample, 0);
+			leftWheelMotor.stop(true);
+			rightWheelMotor.stop(false);
+			
+			if (sample[0] >= Constants.lineThreshold)
+				continue;
+			
+			return;
+		}
+	}
+	
+	
+	protected void adjustInFrontOfBridge() {
+		float[] distances = { 0.0f, 0.0f };
+		
+		leftWheelMotor.rotate(moveWheelEnterBridge, true);
+		rightWheelMotor.rotate(moveWheelEnterBridge, false);
+		
+		ultraSensor.fetchSample(distances, 0);
+		
+		leftWheelMotor.rotate(moveWheelCorrection, true);
+		rightWheelMotor.rotate(moveWheelCorrection, false);
+		
+		ultraSensor.fetchSample(distances, 1);
+		
+		int correction = (int) ((distances[1] - distances[0])
+								* wheelCorrectionFactor);
+		
+		leftWheelMotor.rotate(correction, true);
+		rightWheelMotor.rotate(-correction, false);
+	}
 	
 	protected void crossBridge() {
 		leftWheelMotor.stop();
@@ -108,6 +151,9 @@ public class SuspensionBridgeStrategy extends Strategy {
 			
 			colorSensor.getRedMode().fetchSample(colorSample, 0);
 		}
+		
+		leftWheelMotor.stop();
+		rightWheelMotor.stop();
 	}
 
 }
