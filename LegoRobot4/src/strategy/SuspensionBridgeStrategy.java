@@ -10,15 +10,17 @@ import main.Robot;
 
 public class SuspensionBridgeStrategy extends Strategy {
 	//motors constants
-	public static final int wheelMotorSpeed = 270;
+	public static final int wheelMotorLineSpeed = 260;
+	public static final int wheelMotorAdjustSpeed = 500;
+	public static final int wheelMotorCrossingSpeed = 700;
 	
 	//follow line constants
-	public static final int wheelsSearchDegree = 320;
+	public static final int wheelsSearchDegree = 200;
 
 	//adjust constants
-	public static final int moveWheelEnterBridge = 400;
+	public static final int moveWheelEnterBridge = 700;
 	public static final int moveWheelCorrection = 600;
-	public static final int wheelCorrectionFactor = 1100;
+	public static final int wheelCorrectionFactor = 1500;
 	
 	public static final int wheelMotorSpeedCorrection = 4;
 	
@@ -50,9 +52,6 @@ public class SuspensionBridgeStrategy extends Strategy {
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		colorSensor.setCurrentMode(colorSensor.getRedMode().getName());
 		
-		leftWheelMotor.setSpeed(wheelMotorSpeed);
-		rightWheelMotor.setSpeed(wheelMotorSpeed);
-		
 		robot.centerArm();
 		armMotor.stop(false);
 		
@@ -60,15 +59,17 @@ public class SuspensionBridgeStrategy extends Strategy {
 		robot.ev3.getLED().setPattern(1);
 		followLine();
 		robot.ev3.getLED().setPattern(2);
-		//adjustInFrontOfBridge();
+		adjustInFrontOfBridge();
 		robot.ev3.getLED().setPattern(8);
-		Delay.msDelay(1000);
-		//crossBridge();
+		crossBridge();
 		robot.ev3.getLED().setPattern(0);
 	}
 	
 	protected void followLine() {
 		float[] sample = { 1.0f };
+		
+		leftWheelMotor.setSpeed(wheelMotorLineSpeed);
+		rightWheelMotor.setSpeed(wheelMotorLineSpeed);
 		
 		int lastDirection = 1;
 		
@@ -77,15 +78,11 @@ public class SuspensionBridgeStrategy extends Strategy {
 			rightWheelMotor.forward();
 			while (sample[0] >= Constants.lineThreshold)
 				colorSensor.getRedMode().fetchSample(sample, 0);
-			//leftWheelMotor.stop(true);
-			//rightWheelMotor.stop(false);
 			
 			leftWheelMotor.rotate(lastDirection * wheelsSearchDegree, true);
 			rightWheelMotor.rotate(-lastDirection * wheelsSearchDegree, true);
 			while (rightWheelMotor.isMoving() && sample[0] < Constants.lineThreshold)
 				colorSensor.getRedMode().fetchSample(sample, 0);
-			leftWheelMotor.stop(true);
-			rightWheelMotor.stop(false);
 			
 			if (sample[0] >= Constants.lineThreshold)
 				continue;
@@ -96,12 +93,19 @@ public class SuspensionBridgeStrategy extends Strategy {
 			rightWheelMotor.rotate(-lastDirection * 2 * wheelsSearchDegree, true);
 			while (rightWheelMotor.isMoving() && sample[0] < Constants.lineThreshold)
 				colorSensor.getRedMode().fetchSample(sample, 0);
-			leftWheelMotor.stop(true);
-			rightWheelMotor.stop(false);
+			//leftWheelMotor.stop(true);
+			//rightWheelMotor.stop(false);
 			
 			if (sample[0] >= Constants.lineThreshold)
 				continue;
 			
+			lastDirection = -lastDirection;
+
+			leftWheelMotor.rotate(lastDirection * wheelsSearchDegree, true);
+			rightWheelMotor.rotate(-lastDirection * wheelsSearchDegree, false);
+			
+			leftWheelMotor.stop();
+			rightWheelMotor.stop();
 			return;
 		}
 	}
@@ -109,6 +113,9 @@ public class SuspensionBridgeStrategy extends Strategy {
 	
 	protected void adjustInFrontOfBridge() {
 		float[] distances = { 0.0f, 0.0f };
+		
+		leftWheelMotor.setSpeed(wheelMotorAdjustSpeed);
+		rightWheelMotor.setSpeed(wheelMotorAdjustSpeed);
 		
 		leftWheelMotor.rotate(moveWheelEnterBridge, true);
 		rightWheelMotor.rotate(moveWheelEnterBridge, false);
@@ -123,14 +130,18 @@ public class SuspensionBridgeStrategy extends Strategy {
 		int correction = (int) ((distances[1] - distances[0])
 								* wheelCorrectionFactor);
 		
+		//leftWheelMotor.startSynchronization();
 		leftWheelMotor.rotate(correction, true);
 		rightWheelMotor.rotate(-correction, false);
+		//leftWheelMotor.endSynchronization();
 	}
 	
 	protected void crossBridge() {
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
 		armMotor.stop();
+		leftWheelMotor.setSpeed(wheelMotorCrossingSpeed);
+		rightWheelMotor.setSpeed(wheelMotorCrossingSpeed);
 		gyroSensor.reset();
 		
 		gyroSensor.getAngleMode().fetchSample(startDirection, 0);
@@ -144,8 +155,8 @@ public class SuspensionBridgeStrategy extends Strategy {
 			speedOffset = (int)(gyroSample[0] - startDirection[0])
 							* wheelMotorSpeedCorrection;
 
-			leftWheelMotor.setSpeed(wheelMotorSpeed + speedOffset);
-			rightWheelMotor.setSpeed(wheelMotorSpeed - speedOffset);
+			leftWheelMotor.setSpeed(wheelMotorLineSpeed + speedOffset);
+			rightWheelMotor.setSpeed(wheelMotorLineSpeed - speedOffset);
 			leftWheelMotor.forward();
 			rightWheelMotor.forward();
 			

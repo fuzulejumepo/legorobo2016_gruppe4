@@ -31,11 +31,12 @@ public class Main {
 		//robot.centerArm();
 		
 		Strategy currentStrategy;
-		for (int i = 0; i < 100; ++i) {
+		for (int i = 0; i < 10; ++i) {
 			//currentStrategy = new FollowLineStrategy(robot);
 			//currentStrategy.execute();
 			currentStrategy = new SuspensionBridgeStrategy(robot);
 			currentStrategy.execute();
+			robot.ev3.getKeys().waitForAnyPress();
 		}
 		
 		robot.close();
