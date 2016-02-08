@@ -1,0 +1,6 @@
+package main;
+
+public enum Status {
+	START, BARCODE_FIND, BARCODE_READ, LINE, BRIDGE, 
+	SEESAW, SUSPENSE, SWAMP, RACE, FINISH
+}

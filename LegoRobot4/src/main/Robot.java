@@ -14,7 +14,7 @@ import lejos.robotics.RegulatedMotor;
 public class Robot {
 	//EV3 device
 	public final EV3 ev3 = LocalEV3.get();
-		
+	
 	//Motors
 	public final RegulatedMotor leftWheelMotor = Motor.A;
 	public final RegulatedMotor rightWheelMotor = Motor.B;
@@ -30,6 +30,7 @@ public class Robot {
 	public int sensorArmMid;
 	public int sensorArmDegree;
 	
+	private Status status;
 	
 	//Sensors
 	private static final Port colorSensorPort = SensorPort.S1;
@@ -56,6 +57,8 @@ public class Robot {
 		sensorArmMotor.setAcceleration(Constants.stdSensorArmMotorAcceleration);
 
 		colorSensor.setFloodlight(true);
+		
+		status = Status.START;
 	}
 	
 	
@@ -89,5 +92,14 @@ public class Robot {
 		this.ultraSensor.close();
 		this.bumperRightSensor.close();
 		this.gyroSensor.close();
+	}
+	
+	
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+	
+	public Status getStatus() {
+		return this.status;
 	}
 }
