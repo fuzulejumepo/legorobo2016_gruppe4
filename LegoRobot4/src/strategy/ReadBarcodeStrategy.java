@@ -2,20 +2,18 @@ package strategy;
 
 import lejos.hardware.Sound;
 import lejos.hardware.sensor.EV3ColorSensor;
-import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.RegulatedMotor;
-//import lejos.utility.Delay;
+import main.Constants;
 import main.Robot;
 
 public class ReadBarcodeStrategy extends Strategy {
-	public static final float lineThreshold = 0.2f;
+	
 	public static final int tachoCountMax = 200;
 	
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
 	protected EV3ColorSensor armSensor;
-	protected EV3GyroSensor gyroSensor;
 	
 	protected float[] startDirection = { 0.0f };
 	
@@ -25,7 +23,6 @@ public class ReadBarcodeStrategy extends Strategy {
 		this.leftWheelMotor = robot.leftWheelMotor;
 		this.rightWheelMotor = robot.rightWheelMotor;
 		this.armSensor = robot.colorSensor;
-		this.gyroSensor = robot.gyroSensor;
 	}
 
 	@Override
@@ -46,9 +43,6 @@ public class ReadBarcodeStrategy extends Strategy {
 		
 		Sound.beepSequenceUp();
 		
-		gyroSensor.reset();
-		gyroSensor.getAngleMode().fetchSample(startDirection, 0);
-		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 
 		leftWheelMotor.startSynchronization();
@@ -60,9 +54,8 @@ public class ReadBarcodeStrategy extends Strategy {
 		
 		armSensor.getRedMode().fetchSample(sample1, 0);
 		armSensor.getRedMode().fetchSample(sample2, 0);
-		//System.out.println("	first color : "+sample1[0]+","+sample2[0]);	
 		
-		if (sample1[0]>lineThreshold ||sample2[0]>lineThreshold )
+		if (sample1[0]>Constants.lineThreshold ||sample2[0]>Constants.lineThreshold )
 			sign = 1;
 		else
 			sign = -1;
@@ -72,23 +65,17 @@ public class ReadBarcodeStrategy extends Strategy {
 			counter += 1;
 			leftWheelMotor.resetTachoCount();
 			rightWheelMotor.resetTachoCount();
-			/*
-			if (sign == 1)
-				System.out.println("	white");
-			else
-				System.out.println("	black");
-			*/
-			while ((sign*sample1[0] > sign*lineThreshold || sign*sample2[0] > sign*lineThreshold ) 
+			
+			while ((sign*sample1[0] > sign*Constants.lineThreshold 
+					|| sign*sample2[0] > sign*Constants.lineThreshold ) 
 					&& leftWheelMotor.getTachoCount() < tachoCountMax) {		
 				armSensor.getRedMode().fetchSample(sample1, 0);
 				armSensor.getRedMode().fetchSample(sample2, 0);
-				//System.out.println("	color : "+sample1[0]+","+sample2[0]);
 			}
 						
 			sign = -sign;
-			meanTacho =(leftWheelMotor.getTachoCount()+rightWheelMotor.getTachoCount())/2;	
+			meanTacho = (leftWheelMotor.getTachoCount()+rightWheelMotor.getTachoCount())/2;	
 
-			//System.out.println("		mean: "+meanTacho);
 		}
 		
 		leftWheelMotor.stop();
