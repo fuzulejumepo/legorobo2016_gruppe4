@@ -27,7 +27,6 @@ public class Main {
 		
 
 		robot.ev3.getLED().setPattern(0);
-		robot.calibrateArm();
 		robot.centerArm();
 
 		
