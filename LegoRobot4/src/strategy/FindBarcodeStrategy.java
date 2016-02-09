@@ -130,6 +130,6 @@ public class FindBarcodeStrategy extends Strategy {
 		leftWheelMotor.backward();
 		rightWheelMotor.backward();
 		
-		Delay.msDelay(500);
+		Delay.msDelay(700);
 	}
 }
