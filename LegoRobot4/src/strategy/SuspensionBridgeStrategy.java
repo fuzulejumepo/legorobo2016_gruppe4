@@ -20,12 +20,9 @@ public class SuspensionBridgeStrategy extends Strategy {
 	//adjust constants
 	public static final int moveWheelEnterBridge = 700;
 	public static final int moveWheelCorrection = 600;
-	public static final int wheelCorrectionFactor = 1500;
+	public static final int wheelCorrectionFactor = 1800;
 	
 	public static final int wheelMotorSpeedCorrection = 4;
-	
-	protected float[] startDirection = { 0.0f };
-
 
 
 	protected RegulatedMotor armMotor;
@@ -47,7 +44,7 @@ public class SuspensionBridgeStrategy extends Strategy {
 	}
 
 	public void execute() {
-		robot.ev3.getTextLCD().drawString("BridgeStrategy", 2, 2);
+		robot.ev3.getTextLCD().drawString("SuspensionBridgeStrategy", 2, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		colorSensor.setCurrentMode(colorSensor.getRedMode().getName());
@@ -144,6 +141,7 @@ public class SuspensionBridgeStrategy extends Strategy {
 		rightWheelMotor.setSpeed(wheelMotorCrossingSpeed);
 		gyroSensor.reset();
 		
+		float[] startDirection = { 0.0f };
 		gyroSensor.getAngleMode().fetchSample(startDirection, 0);
 		float[] gyroSample = { 0.0f };
 		int speedOffset;
@@ -155,8 +153,8 @@ public class SuspensionBridgeStrategy extends Strategy {
 			speedOffset = (int)(gyroSample[0] - startDirection[0])
 							* wheelMotorSpeedCorrection;
 
-			leftWheelMotor.setSpeed(wheelMotorLineSpeed + speedOffset);
-			rightWheelMotor.setSpeed(wheelMotorLineSpeed - speedOffset);
+			leftWheelMotor.setSpeed(wheelMotorCrossingSpeed + speedOffset);
+			rightWheelMotor.setSpeed(wheelMotorCrossingSpeed - speedOffset);
 			leftWheelMotor.forward();
 			rightWheelMotor.forward();
 			

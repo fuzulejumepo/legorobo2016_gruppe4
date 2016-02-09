@@ -11,8 +11,8 @@ public class TestStrategy extends Strategy {
 	public void execute() {
 		robot.ev3.getTextLCD().drawString("TestStrategy", 1, 1);
 
-		testUltraSensor();
-		
+		//testUltraSensor();
+		testColorSensorAmbientMode();
 	}
 	
 	public void testUltraSensor() {

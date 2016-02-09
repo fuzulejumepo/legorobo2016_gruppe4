@@ -30,16 +30,18 @@ public class Main {
 		robot.calibrateArm();
 		//robot.centerArm();
 		
-		/*Strategy currentStrategy;
-		for (int i = 0; i < 10; ++i) {
-			//currentStrategy = new FollowLineStrategy(robot);
-			//currentStrategy.execute();
-			currentStrategy = new SuspensionBridgeStrategy(robot);
+		Strategy currentStrategy;
+		for (int i = 0; i < 1; ++i) {
+			currentStrategy = new FollowLineStrategy(robot);
 			currentStrategy.execute();
-			robot.ev3.getKeys().waitForAnyPress();
-		}*/
+			//currentStrategy = new BridgeStrategy(robot);
+			//currentStrategy.execute();
+			//currentStrategy = new ElevatorStrategy(robot);
+			//currentStrategy.execute();
+			//robot.ev3.getKeys().waitForAnyPress();
+		}
 		
-		Strategy currentStrategy = null;
+		/*Strategy currentStrategy = null;
 		Status status = robot.getStatus();
 		
 		while (status != Status.FINISH) {
@@ -85,7 +87,7 @@ public class Main {
 				System.out.println("No strategy found!");
 				break;
 			}
-		}
+		}*/
 		
 		robot.close();
 	}

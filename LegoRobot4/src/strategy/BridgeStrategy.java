@@ -20,6 +20,7 @@ public class BridgeStrategy extends Strategy {
 
 	//park constants
 	public static final int wheelMotorParkSpeed = 100;
+	public static final float parkDist = 0.2f;
 	
 	
 	protected RegulatedMotor armMotor;
@@ -45,9 +46,6 @@ public class BridgeStrategy extends Strategy {
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		colorSensor.setCurrentMode(colorSensor.getColorIDMode().getName());
-		
-		robot.calibrateArm();
-
 		
 		armMotor.backward();
 		robot.ev3.getLED().setPattern(2);
@@ -106,7 +104,7 @@ public class BridgeStrategy extends Strategy {
 		
 		leftWheelMotor.backward();
 		rightWheelMotor.forward();
-		while (ultraSample[0] > 0.2f)
+		while (ultraSample[0] > parkDist)
 			ultraSensor.fetchSample(ultraSample, 0);
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();

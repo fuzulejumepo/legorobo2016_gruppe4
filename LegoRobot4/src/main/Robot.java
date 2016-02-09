@@ -56,7 +56,7 @@ public class Robot {
 		sensorArmMotor.setSpeed(Constants.stdSensorArmMotorSpeed);
 		sensorArmMotor.setAcceleration(Constants.stdSensorArmMotorAcceleration);
 
-		colorSensor.setFloodlight(true);
+		//colorSensor.setFloodlight(true);
 		
 		status = Status.START;
 	}
