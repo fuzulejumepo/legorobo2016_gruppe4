@@ -10,8 +10,8 @@ import lejos.utility.Delay;
 public class FollowLineStrategy extends Strategy{
 
 	//motors constants
-	public static final int wheelMotorSpeed = 300;
-	public static final int sensorArmMotorSpeed = 800; //800
+	public static final int wheelMotorSpeed = 240;
+	public static final int sensorArmMotorSpeed = 700; //800
 
 	//search line constants
 	public static final int sensorArmSearchOffset = 30;
@@ -20,8 +20,8 @@ public class FollowLineStrategy extends Strategy{
 
 	//follow line constants
 	public static final int sensorArmFollowOffset = 2; //2
-	public static final int sensorArmFollowDegree = 70; //80
-	public static final int sensorArmFollowTurnDegree = 10;
+	public static final int sensorArmFollowDegree = 80; //80
+	public static final int sensorArmFollowTurnDegree = 20;
 	public static final float wheelMotorSpeedReduction = 1.18f; //1.18
 
 	
@@ -80,7 +80,7 @@ public class FollowLineStrategy extends Strategy{
 			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) {
 				armMotor.stop(false);
-				armMotor.rotate(sensorArmSearchOffset, false);
+				//armMotor.rotate(sensorArmSearchOffset, false);
 				return true;
 			}
 		}
@@ -90,7 +90,7 @@ public class FollowLineStrategy extends Strategy{
 			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) {
 				armMotor.stop(false);
-				armMotor.rotate(-sensorArmSearchOffset, false);
+				//armMotor.rotate(-sensorArmSearchOffset, false);
 				return true;
 			}
 		}
@@ -98,11 +98,12 @@ public class FollowLineStrategy extends Strategy{
 		
 		
 		leftWheelMotor.rotate(-wheelsSearchDegree, true);
-		rightWheelMotor.rotate(wheelsSearchDegree, false);
+		rightWheelMotor.rotate(wheelsSearchDegree, true);
 		while (leftWheelMotor.isMoving()) {
 			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) {
-				armMotor.stop(false);
+				leftWheelMotor.stop();
+				rightWheelMotor.stop();
 				return true;
 			}
 		}
@@ -111,11 +112,12 @@ public class FollowLineStrategy extends Strategy{
 		armMotor.stop(false);
 		
 		leftWheelMotor.rotate(2 * wheelsSearchDegree, true);
-		rightWheelMotor.rotate(-2 * wheelsSearchDegree, false);
+		rightWheelMotor.rotate(-2 * wheelsSearchDegree, true);
 		while (leftWheelMotor.isMoving()) {
 			colorSensor.getRedMode().fetchSample(sample, 0);
 			if (sample[0] > Constants.lineThreshold) {
-				armMotor.stop(false);
+				leftWheelMotor.stop();
+				rightWheelMotor.stop();
 				return true;
 			}
 		}
