@@ -44,6 +44,9 @@ public class FindBarcodeStrategy extends Strategy {
 		//robot.calibrateArm();
 		robot.centerArm();
 		
+		//move back a little bit to find the first line
+		moveBack();
+		
 		for (int i = 0; i < 2; ++i) {
 			robot.ev3.getLED().setPattern(3);
 			findBar();
@@ -121,5 +124,12 @@ public class FindBarcodeStrategy extends Strategy {
 		rightWheelMotor.rotate(-correction, false);
 		
 		return true;
+	}
+	
+	protected void moveBack() {
+		leftWheelMotor.backward();
+		rightWheelMotor.backward();
+		
+		Delay.msDelay(700);
 	}
 }

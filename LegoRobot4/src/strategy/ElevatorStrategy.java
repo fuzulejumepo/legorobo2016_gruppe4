@@ -54,7 +54,7 @@ public class ElevatorStrategy extends Strategy {
 		waitForDown();
 		leaveElevator();
 		
-		robot.setStatus(Status.BARCODE_FIND);
+		robot.setStatus(Status.LINE);
 	}
 	
 	protected void waitForUp() {

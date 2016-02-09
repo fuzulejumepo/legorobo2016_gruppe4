@@ -27,7 +27,8 @@ public class Main {
 		
 
 		robot.ev3.getLED().setPattern(0);
-		//robot.centerArm();
+		robot.centerArm();
+
 		
 		Strategy currentStrategy;
 		for (int i = 0; i < 1; ++i) {
@@ -74,7 +75,7 @@ public class Main {
 					currentStrategy = new SwampStrategy(robot);
 					break;
 				case RACE: 
-					currentStrategy = null;
+					currentStrategy = new RacingStrategy(robot);
 					break;
 				default:
 					currentStrategy = null;

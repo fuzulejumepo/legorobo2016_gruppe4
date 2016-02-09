@@ -71,12 +71,14 @@ public class FollowLineStrategy extends Strategy{
 			if (!correctPosition()) {
 				robot.ev3.getLED().setPattern(2);
 				if (!searchLine())
-					return;
+					break;
 			}
 			
 			robot.ev3.getLED().setPattern(1);
 			followLine();
 		}
+		
+		robot.setStatus(Status.BARCODE_FIND);
 	}
 
 
