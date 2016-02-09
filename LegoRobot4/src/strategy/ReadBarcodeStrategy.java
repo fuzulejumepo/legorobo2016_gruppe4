@@ -3,6 +3,7 @@ package strategy;
 import lejos.hardware.Sound;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.RegulatedMotor;
+import lejos.utility.Delay;
 import main.Constants;
 import main.Robot;
 import main.Status;
@@ -72,11 +73,14 @@ public class ReadBarcodeStrategy extends Strategy {
 					&& leftWheelMotor.getTachoCount() < tachoCountMax) {		
 				armSensor.getRedMode().fetchSample(sample1, 0);
 				armSensor.getRedMode().fetchSample(sample2, 0);
+				Delay.msDelay(100);
+				//System.out.println("color: " + sample1[0] + " " + sample2[0]);
 			}
 						
 			sign = -sign;
 			meanTacho = (leftWheelMotor.getTachoCount()+rightWheelMotor.getTachoCount())/2;	
-
+			Delay.msDelay(100);
+			//System.out.println("Tacho: " + meanTacho);
 		}
 		
 		leftWheelMotor.stop();
@@ -108,5 +112,5 @@ public class ReadBarcodeStrategy extends Strategy {
 		}
 		
 	}
-
+ 
 }
