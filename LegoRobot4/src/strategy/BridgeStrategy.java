@@ -5,6 +5,7 @@ import lejos.hardware.sensor.EV3TouchSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.robotics.RegulatedMotor;
 import main.Robot;
+import main.Status;
 
 public class BridgeStrategy extends Strategy {
 	
@@ -42,6 +43,7 @@ public class BridgeStrategy extends Strategy {
 	}
 	
 	public void execute() {
+		robot.ev3.getTextLCD().clear();
 		robot.ev3.getTextLCD().drawString("BridgeStrategy", 2, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
@@ -61,6 +63,8 @@ public class BridgeStrategy extends Strategy {
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
 		leftWheelMotor.endSynchronization();
+		
+		robot.setStatus(Status.ELEVATOR);
 	}
 	
 	protected void findEdge() {

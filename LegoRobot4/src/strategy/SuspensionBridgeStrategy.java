@@ -7,6 +7,7 @@ import lejos.robotics.RegulatedMotor;
 import lejos.utility.Delay;
 import main.Constants;
 import main.Robot;
+import main.Status;
 
 public class SuspensionBridgeStrategy extends Strategy {
 	//motors constants
@@ -44,6 +45,7 @@ public class SuspensionBridgeStrategy extends Strategy {
 	}
 
 	public void execute() {
+		robot.ev3.getTextLCD().clear();
 		robot.ev3.getTextLCD().drawString("SuspensionBridgeStrategy", 2, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
@@ -60,6 +62,8 @@ public class SuspensionBridgeStrategy extends Strategy {
 		robot.ev3.getLED().setPattern(8);
 		crossBridge();
 		robot.ev3.getLED().setPattern(0);
+		
+		robot.setStatus(Status.BARCODE_FIND);
 	}
 	
 	protected void followLine() {

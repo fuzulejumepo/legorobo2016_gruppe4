@@ -5,6 +5,7 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.RegulatedMotor;
 import main.Constants;
 import main.Robot;
+import main.Status;
 
 public class ReadBarcodeStrategy extends Strategy {
 	
@@ -82,6 +83,30 @@ public class ReadBarcodeStrategy extends Strategy {
 		rightWheelMotor.stop();
 		counter = counter/2;
 		//System.out.println("	Barcode: " + counter);
+		
+		switch (counter) {
+			case 1: 
+				robot.setStatus(Status.SWAMP);
+				break;
+			case 2:
+				robot.setStatus(Status.LINE);
+				break;
+			case 3:
+				robot.setStatus(Status.BRIDGE);
+				break;
+			case 4:
+				robot.setStatus(Status.SEESAW);
+				break;
+			case 5: 
+				robot.setStatus(Status.SUSPENSE);
+				break;
+			case 6:
+				robot.setStatus(Status.RACE);
+				break;
+			default:
+				robot.setStatus(Status.FINISH);
+		}
+		
 	}
 
 }
