@@ -33,6 +33,7 @@ public class LabyrinthStrategy extends Strategy {
 
 	@Override
 	public void execute() {
+		robot.ev3.getTextLCD().clear();
 		robot.ev3.getTextLCD().drawString("LabyrinthStrategy", 2, 2);
 		
 		float[] colorSamples = { 0.0f };

@@ -54,7 +54,7 @@ public class Main {
 					currentStrategy = new FindBarcodeStrategy(robot);
 					break;
 				case BARCODE_READ:
-					currentStrategy = null;
+					currentStrategy = new ReadBarcodeStrategy(robot);
 					break;
 				case LINE:
 					currentStrategy = new FollowLineStrategy(robot);
@@ -62,14 +62,17 @@ public class Main {
 				case BRIDGE:
 					currentStrategy = new BridgeStrategy(robot);
 					break;
+				case ELEVATOR:
+					currentStrategy = new ElevatorStrategy(robot);
+					break;
 				case SEESAW: 
-					currentStrategy = null;
+					currentStrategy = new FollowLineStrategy(robot);
 					break;
 				case SUSPENSE: 
 					currentStrategy = new SuspensionBridgeStrategy(robot);
 					break;
 				case SWAMP: 
-					currentStrategy = null;
+					currentStrategy = new SwampStrategy(robot);
 					break;
 				case RACE: 
 					currentStrategy = null;

@@ -41,6 +41,7 @@ public class FollowLineStrategy extends Strategy{
 	}
 	
 	public void execute() {
+		robot.ev3.getTextLCD().clear();
 		robot.ev3.getTextLCD().drawString("FollowLineStrategy", 2, 2);
 
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
@@ -54,7 +55,7 @@ public class FollowLineStrategy extends Strategy{
 			leftWheelMotor.setSpeed(wheelMotorSpeed);
 			rightWheelMotor.setSpeed(wheelMotorSpeed);
 			if (!searchLine())
-				return;
+				break;
 			
 			robot.ev3.getLED().setPattern(1);
 			leftWheelMotor.setSpeed(wheelMotorSpeed);
@@ -63,6 +64,8 @@ public class FollowLineStrategy extends Strategy{
 			leftWheelMotor.stop();
 			rightWheelMotor.stop();
 		}
+		
+		robot.setStatus(Status.BARCODE_FIND);
 	}
 
 

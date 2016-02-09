@@ -53,6 +53,8 @@ public class ElevatorStrategy extends Strategy {
 		moveElevatorDown(comModule);
 		waitForDown();
 		leaveElevator();
+		
+		robot.setStatus(Status.BARCODE_FIND);
 	}
 	
 	protected void waitForUp() {

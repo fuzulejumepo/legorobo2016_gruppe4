@@ -6,6 +6,7 @@ import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.robotics.RegulatedMotor;
 import main.Constants;
 import main.Robot;
+import main.Status;
 
 public class SwampStrategy extends Strategy {
 	
@@ -31,6 +32,7 @@ public class SwampStrategy extends Strategy {
 	}
 	
 	public void execute() {
+		robot.ev3.getTextLCD().clear();
 		robot.ev3.getTextLCD().drawString("SwampStrategy", 2, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
@@ -39,6 +41,8 @@ public class SwampStrategy extends Strategy {
 		robot.ev3.getLED().setPattern(7);
 		crossSwamp();
 		robot.ev3.getLED().setPattern(0);
+		
+		robot.setStatus(Status.BARCODE_FIND);
 	}
 	
 	protected void crossSwamp() {

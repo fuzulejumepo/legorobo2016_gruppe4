@@ -35,6 +35,7 @@ public class FindBarcodeStrategy extends Strategy {
 	}
 	
 	public void execute() {
+		robot.ev3.getTextLCD().clear();
 		robot.ev3.getTextLCD().drawString("FindBarcodeStrategy", 2, 2);
 
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
@@ -55,7 +56,6 @@ public class FindBarcodeStrategy extends Strategy {
 		
 		robot.setStatus(Status.BARCODE_READ);
 	}
-	
 	
 	protected void findBar() {
 		armMotor.setSpeed(sensorArmMotorSpeed);
