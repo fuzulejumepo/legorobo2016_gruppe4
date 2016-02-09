@@ -55,6 +55,8 @@ public class Robot {
 		maxSpeedArm = (int) sensorArmMotor.getMaxSpeed();
 		sensorArmMotor.setSpeed(Constants.stdSensorArmMotorSpeed);
 		sensorArmMotor.setAcceleration(Constants.stdSensorArmMotorAcceleration);
+		
+		calibrateArm();
 
 		//colorSensor.setFloodlight(true);
 		
@@ -63,6 +65,7 @@ public class Robot {
 	
 	
 	public void calibrateArm() {
+		sensorArmMotor.resetTachoCount();
 		sensorArmMotor.forward();
 		while (!sensorArmMotor.isStalled());
 		int leftMax = sensorArmMotor.getTachoCount();
@@ -73,10 +76,12 @@ public class Robot {
 		
 		sensorArmMin = ((leftMax < rightMax) ? leftMax : rightMax);
 		sensorArmMin += sensorArmPositionOffset;
-		sensorArmMax = ((leftMax > rightMax) ? leftMax : rightMax);
+		sensorArmMax = ((leftMax >= rightMax) ? leftMax : rightMax);
 		sensorArmMax -= sensorArmPositionOffset;
 		sensorArmMid = (leftMax + rightMax) / 2;
 		sensorArmDegree = sensorArmMax - sensorArmMin;
+		
+		sensorArmMotor.stop(false);
 	}
 	
 	public void centerArm() {
