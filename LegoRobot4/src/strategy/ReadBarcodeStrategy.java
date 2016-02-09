@@ -35,15 +35,14 @@ public class ReadBarcodeStrategy extends Strategy {
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		
 		robot.colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
-		robot.calibrateArm();
 		robot.centerArm();
+		
+		moveBack();
 		
 		float[] sample1 = { 0.0f };
 		float[] sample2 = { 0.0f };
 		int counter = 0;
 		int sign = 1;
-		
-		Sound.beepSequenceUp();
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 
@@ -57,10 +56,14 @@ public class ReadBarcodeStrategy extends Strategy {
 		armSensor.getRedMode().fetchSample(sample1, 0);
 		armSensor.getRedMode().fetchSample(sample2, 0);
 		
-		if (sample1[0]>Constants.lineThreshold ||sample2[0]>Constants.lineThreshold )
+		if (sample1[0]>Constants.lineThreshold ||sample2[0]>Constants.lineThreshold ) {
+			Sound.beepSequenceUp();
 			sign = 1;
-		else
+		}
+		else {
+			Sound.beepSequence();
 			sign = -1;
+		}
 			
 		while ( meanTacho < tachoCountMax){
 			
@@ -111,6 +114,13 @@ public class ReadBarcodeStrategy extends Strategy {
 				robot.setStatus(Status.FINISH);
 		}
 		
+	}
+	
+	protected void moveBack() {
+		leftWheelMotor.backward();
+		rightWheelMotor.backward();
+		
+		Delay.msDelay(300);
 	}
  
 }

@@ -65,11 +65,14 @@ public class FindBarcodeStrategy extends Strategy {
 		leftWheelMotor.setSpeed(wheelMotorSpeed);
 		rightWheelMotor.setSpeed(wheelMotorSpeed);
 		
+		leftWheelMotor.resetTachoCount();
+		rightWheelMotor.resetTachoCount();
+		
 		leftWheelMotor.forward();
 		rightWheelMotor.forward();
 		
 		float[] sample = { 0.0f };
-		while (sample[0] < Constants.lineThreshold) {
+		while (sample[0] < Constants.lineThreshold && leftWheelMotor.getTachoCount() < 500) {
 			colorSensor.getRedMode().fetchSample(sample, 0);
 		}
 		

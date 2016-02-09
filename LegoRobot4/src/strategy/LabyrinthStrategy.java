@@ -7,6 +7,7 @@ import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.robotics.RegulatedMotor;
 import lejos.robotics.SampleProvider;
 import lejos.robotics.navigation.DifferentialPilot;
+import lejos.utility.Delay;
 import main.Constants;
 import main.Robot;
 import main.Status;
@@ -21,6 +22,11 @@ public class LabyrinthStrategy extends Strategy {
 	protected EV3GyroSensor gyroSensor;
 	protected SampleProvider ultra;
 	private DifferentialPilot pilot;
+	
+	public static final int wheelMotorAdjustSpeed = 500;
+	public static final int moveWheelEnterBridge = 200; //700;
+	public static final int moveWheelCorrection = 150; //600;
+	public static final int wheelCorrectionFactor = 1800;
 	
 	static int speed = 500;
 	static int factor = 900; // 1150
@@ -93,6 +99,9 @@ public class LabyrinthStrategy extends Strategy {
 		
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
+		
+		adjustInFrontOfBarcode();
+		
 		robot.setStatus(Status.BARCODE_FIND);
 	}
 
@@ -101,5 +110,35 @@ public class LabyrinthStrategy extends Strategy {
 		rightWheelMotor.setSpeed((int) (speed + -(factor * distance)));
 		leftWheelMotor.forward();
 		rightWheelMotor.forward();
+	}
+	
+	protected void adjustInFrontOfBarcode() {
+		float[] distances = { 0.0f, 0.0f };
+		
+		leftWheelMotor.setSpeed(wheelMotorAdjustSpeed);
+		rightWheelMotor.setSpeed(wheelMotorAdjustSpeed);
+		
+		leftWheelMotor.rotate(moveWheelEnterBridge, true);
+		rightWheelMotor.rotate(moveWheelEnterBridge, false);
+		
+		ultraSensor.fetchSample(distances, 0);
+		
+		leftWheelMotor.rotate(moveWheelCorrection, true);
+		rightWheelMotor.rotate(moveWheelCorrection, false);
+		
+		ultraSensor.fetchSample(distances, 1);
+		
+		int correction = (int) ((distances[1] - distances[0])
+								* wheelCorrectionFactor);
+		
+		//leftWheelMotor.startSynchronization();
+		leftWheelMotor.rotate(correction, true);
+		rightWheelMotor.rotate(-correction, false);
+		//leftWheelMotor.endSynchronization();
+		
+		leftWheelMotor.backward();
+		rightWheelMotor.backward();
+		
+		Delay.msDelay(1000);
 	}
 }
