@@ -20,13 +20,13 @@ public class FollowLineStrategy extends Strategy{
 	public static final int wheelsSearchDegree = 400;
 	
 	//correct position constants
-	public static final int sensorArmCorrectionDegree = 30;
+	public static final int sensorArmCorrectionDegree = 10;
 	public static final int wheelsCorrectionDegree = 100;
 
 	//follow line constants
 	public static final int sensorArmFollowOffset = 3; //2
 	//public static final int sensorArmFollowDegree = 74; //80
-	public static final int sensorArmFollowTurnDegree = 18;
+	public static final int sensorArmFollowTurnDegree = 14;
 	public static final int wheelFollowDegree = 300;
 	public static final float wheelMotorSpeedReduction = 1.2f; //1.18
 
@@ -58,6 +58,7 @@ public class FollowLineStrategy extends Strategy{
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
 
+		robot.centerArm();
 		armMotor.setSpeed(sensorArmMotorSpeed);
 		
 		//robot.ev3.getLED().setPattern(2);
@@ -219,11 +220,11 @@ public class FollowLineStrategy extends Strategy{
 //				return;
 //			}
 			
-			if (currentArmDegree <= robot.sensorArmMin + sensorArmCorrectionDegree)
-				rightWheelMotor.stop(true);
-			if (currentArmDegree >= robot.sensorArmMax - sensorArmCorrectionDegree)
-				leftWheelMotor.stop(true);
-				
+//			if (currentArmDegree <= robot.sensorArmMin + sensorArmCorrectionDegree)
+//				rightWheelMotor.stop(true);
+//			if (currentArmDegree >= robot.sensorArmMax - sensorArmCorrectionDegree)
+//				leftWheelMotor.stop(true);
+			
 			
 			armMotor.stop(true);
 			armMotor.rotate(-direction * sensorArmFollowOffset, true);
