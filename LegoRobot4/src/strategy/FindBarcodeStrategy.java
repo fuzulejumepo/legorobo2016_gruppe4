@@ -56,7 +56,7 @@ public class FindBarcodeStrategy extends Strategy {
 		boolean success = adjustAtBar();
 		robot.ev3.getLED().setPattern(0);
 		if (success)
-			robot.setStatus(Status.BARCODE_READ);
+			robot.setStatus(Status.READ_BARCODE);
 		else
 			robot.setStatus(Status.ERROR);
 	}

@@ -28,16 +28,17 @@ public class Main {
 
 		robot.ev3.getLED().setPattern(0);
 		robot.centerArm();
+		robot.setStatus(Status.FIND_BARCODE);
 
 		
 		Strategy currentStrategy = null;
 		
 //		for (int i = 0; i < 100; ++i) {
-//			robot.ev3.getKeys().waitForAnyPress();
-//			Delay.msDelay(1000);
-//			currentStrategy = new BridgeStrategy(robot);
-//			currentStrategy.execute();
-//			currentStrategy = new ElevatorStrategy(robot);
+//			//robot.ev3.getKeys().waitForAnyPress();
+//			//Delay.msDelay(1000);
+//			//currentStrategy = new RaceStrategy(robot);
+//			//currentStrategy.execute();
+//			currentStrategy = new BossStrategy(robot);
 //			currentStrategy.execute();
 //			//currentStrategy = new SwampStrategy(robot);
 //			//currentStrategy.execute();
@@ -49,7 +50,7 @@ public class Main {
 //			//currentStrategy.execute();
 //			//currentStrategy = new ElevatorStrategy(robot);
 //			//currentStrategy.execute();
-//			//robot.ev3.getKeys().waitForAnyPress();
+//			robot.ev3.getKeys().waitForAnyPress();
 //		}
 		
 		Status status = robot.getStatus();
@@ -60,10 +61,10 @@ public class Main {
 					currentStrategy = new LabyrinthStrategy(robot);
 					//currentStrategy = new FindBarcodeStrategy(robot);
 					break;
-				case BARCODE_FIND:
+				case FIND_BARCODE:
 					currentStrategy = new FindBarcodeStrategy(robot);
 					break;
-				case BARCODE_READ:
+				case READ_BARCODE:
 					currentStrategy = new ReadBarcodeStrategy(robot);
 					break;
 				case FOLLOW_LINE:
@@ -87,6 +88,10 @@ public class Main {
 				case RACE: 
 					currentStrategy = new RaceStrategy(robot);
 					break;
+				case BOSS:
+					currentStrategy = new BossStrategy(robot);
+					break;
+				case FINISH:
 				case ERROR:
 				default:
 					currentStrategy = null;
@@ -100,7 +105,7 @@ public class Main {
 				robot.ev3.getTextLCD().drawString("Please set", 1, 1);
 				robot.ev3.getTextLCD().drawString("in fron of", 1, 2);
 				robot.ev3.getTextLCD().drawString("a barcode", 1, 3);
-				robot.setStatus(Status.BARCODE_FIND);
+				robot.setStatus(Status.FIND_BARCODE);
 				robot.ev3.getKeys().waitForAnyPress();
 			}
 			

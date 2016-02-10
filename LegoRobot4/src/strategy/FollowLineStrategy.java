@@ -76,7 +76,7 @@ public class FollowLineStrategy extends Strategy{
 					rightWheelMotor.setSpeed(wheelMotorCorrectionSpeed);
 					leftWheelMotor.rotate(70, true);
 					rightWheelMotor.rotate(70, false);
-					robot.setStatus(Status.BARCODE_FIND);
+					robot.setStatus(Status.FIND_BARCODE);
 					return;
 				}
 			}

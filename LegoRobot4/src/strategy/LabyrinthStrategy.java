@@ -31,7 +31,7 @@ public static final int wheelMotorAdjustSpeed = 500;
 
 
 	static int speed = 400;
-	static int factor = 600; // 1150
+	static int factor = 500; // 1150
 	float maxSpeed;
 	static float maxFactor;
 
@@ -68,7 +68,7 @@ public static final int wheelMotorAdjustSpeed = 500;
 				touchSensorRight.fetchSample(touchedRight, 0);
 				ultra.fetchSample(distances, 0);
 				distance = distances[0] - 0.07f;
-				if (distance < 0.02 && touchedRight[0]!= 1.0&& colorSamples[0] < Constants.lineThreshold){
+				if (distance < 0.02 && touchedRight[0]!= 1.0f && colorSamples[0] < Constants.lineThreshold){
 					while(distance<0.02 && touchedRight[0]!= 1.0 && colorSamples[0] < Constants.lineThreshold){
 					moveCorrected(maxSpeed,maxFactor,distance);
 					ultra.fetchSample(distances, 0);
@@ -83,11 +83,11 @@ public static final int wheelMotorAdjustSpeed = 500;
 						}
 				}
 				
-				// lcd.drawString(" " + distance, 3, 3);
 				moveCorrected(speed, factor, distance);
 				colorSensor.getRedMode().fetchSample(colorSamples, 0);
 			}
-			leftWheelMotor.rotate(-350, false);
+			if (touchedRight[0] == 1.0f)
+				leftWheelMotor.rotate(-300, false); //350
 			touchSensorRight.fetchSample(touchedRight, 0);
 			
 		}
@@ -105,7 +105,7 @@ public static final int wheelMotorAdjustSpeed = 500;
 		
 		//adjustInFrontOfBarcode();
 		
-		robot.setStatus(Status.BARCODE_FIND);
+		robot.setStatus(Status.FIND_BARCODE);
 	}
 
 	private void moveCorrected(float speed, float factor, float distance ) {

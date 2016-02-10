@@ -57,8 +57,6 @@ public class Robot {
 		sensorArmMotor.setAcceleration(Constants.stdSensorArmMotorAcceleration);
 		
 		calibrateArm();
-
-		status = Status.LABYRINTH;
 	}
 	
 	

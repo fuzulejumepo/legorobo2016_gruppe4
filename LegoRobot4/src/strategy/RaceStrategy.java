@@ -5,10 +5,10 @@ import main.Robot;
 import main.Status;
 
 public class RaceStrategy extends Strategy {
-	public static final int wheelSpeed = 500;
+	public static final int wheelMotorSpeed = 500;
 	
-	public static final int wheelRotate = 190;
-	public static final int wheelForward = 1200;
+	public static final int wheelMotorRotate = 190;
+	public static final int wheelMotorForward = 1000;
 	
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
@@ -26,18 +26,21 @@ public class RaceStrategy extends Strategy {
 
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		
-		leftWheelMotor.setSpeed(wheelSpeed);
-		rightWheelMotor.setSpeed(wheelSpeed);
+		leftWheelMotor.setSpeed(wheelMotorSpeed);
+		rightWheelMotor.setSpeed(wheelMotorSpeed);
 		
-		leftWheelMotor.rotate(wheelRotate, true);
-		rightWheelMotor.rotate(-wheelRotate, false);
+		leftWheelMotor.rotate(wheelMotorRotate, true);
+		rightWheelMotor.rotate(-wheelMotorRotate, false);
 		
-		leftWheelMotor.rotate(wheelForward, true);
-		rightWheelMotor.rotate(wheelForward, false);
+		leftWheelMotor.rotate(wheelMotorForward, true);
+		rightWheelMotor.rotate(wheelMotorForward, false);
 		
-		leftWheelMotor.rotate(-wheelRotate, true);
-		rightWheelMotor.rotate(wheelRotate, false);
+		leftWheelMotor.rotate(-wheelMotorRotate, true);
+		rightWheelMotor.rotate(wheelMotorRotate, false);
 		
-		robot.setStatus(Status.LABYRINTH);
+		(new LabyrinthStrategy(robot)).execute();
+		(new FindBarcodeStrategy(robot)).execute();
+		
+		robot.setStatus(Status.BOSS);
 	}
 }

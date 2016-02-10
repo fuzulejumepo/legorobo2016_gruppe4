@@ -1,49 +1,42 @@
 package strategy;
 
-import edu.kit.mindstorms.communication.ComModule;
-import edu.kit.mindstorms.communication.Communication;
-import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.RegulatedMotor;
 import main.Robot;
 import main.Status;
 
-public class SeesawStrategy extends Strategy {
-	public static final int wheelMotorSpeed = 500;
+public class BossStrategy extends Strategy {
+	public static final int wheelMotorSpeed = 700;
 	
 	public static final int wheelMotorSpeedCorrection = 4;
-	public static final int wheelForward = 4900;
-
+	public static final int wheelForward = 10000;
 	
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
 	protected EV3GyroSensor gyroSensor;
-
 	
-	public SeesawStrategy(Robot robot) {
+	public BossStrategy(Robot robot) {
 		super(robot);
 		this.leftWheelMotor = robot.leftWheelMotor;
 		this.rightWheelMotor = robot.rightWheelMotor;
 		this.gyroSensor = robot.gyroSensor;
 	}
 	
-	
-	public void execute () {
+	public void execute() {
 		robot.ev3.getTextLCD().clear();
-		robot.ev3.getTextLCD().drawString("SeesawStrategy", 1, 2);
+		robot.ev3.getTextLCD().drawString("BossStrategy", 1, 2);
+
+		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		
 		leftWheelMotor.setSpeed(wheelMotorSpeed);
 		rightWheelMotor.setSpeed(wheelMotorSpeed);
 		
-		crossSeesaw();
+		crossBossArea();
 		
-		//leftWheelMotor.rotate(wheelForward, true);
-		//rightWheelMotor.rotate(wheelForward, false);
-		
-		robot.setStatus(Status.FOLLOW_LINE);
+		robot.setStatus(Status.FINISH);
 	}
 	
-	protected void crossSeesaw() {
+	protected void crossBossArea() {
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
 		//leftWheelMotor.setSpeed(wheelMotorSpeed);
@@ -53,6 +46,7 @@ public class SeesawStrategy extends Strategy {
 		
 		float[] startDirection = { 0.0f };
 		gyroSensor.getAngleMode().fetchSample(startDirection, 0);
+		startDirection[0] -= 6.0f;
 		float[] gyroSample = { 0.0f };
 		int speedOffset;
 		int tacho = 0;
@@ -73,5 +67,4 @@ public class SeesawStrategy extends Strategy {
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
 	}
-
 }
