@@ -39,7 +39,6 @@ public static final int wheelMotorAdjustSpeed = 500;
 
 	public LabyrinthStrategy(Robot robot) {
 		super(robot);
-//		this.pilot = robot.
 		this.gyroSensor = robot.gyroSensor;
 		this.armMotor = robot.sensorArmMotor;
 		this.leftWheelMotor = robot.leftWheelMotor;
@@ -96,8 +95,14 @@ public static final int wheelMotorAdjustSpeed = 500;
 		leftWheelMotor.stop(true);
 		rightWheelMotor.stop(false);
 		
-		//leftWheelMotor.rotate(-200, true);
-		//rightWheelMotor.rotate(-200, false);
+		leftWheelMotor.setSpeed(400);
+		rightWheelMotor.setSpeed(400);
+		leftWheelMotor.rotate(-600, true);
+		rightWheelMotor.rotate(-600, false);
+		
+		leftWheelMotor.stop(true);
+		rightWheelMotor.stop(false);
+		
 		//adjustInFrontOfBarcode();
 		
 		robot.setStatus(Status.BARCODE_FIND);
@@ -110,34 +115,34 @@ public static final int wheelMotorAdjustSpeed = 500;
 		rightWheelMotor.forward();
 	}
 	
-	protected void adjustInFrontOfBarcode() {
-		float[] distances = { 0.0f, 0.0f };
-		
-		leftWheelMotor.setSpeed(wheelMotorAdjustSpeed);
-		rightWheelMotor.setSpeed(wheelMotorAdjustSpeed);
-		
-		leftWheelMotor.rotate(moveWheelEnterBridge, true);
-		rightWheelMotor.rotate(moveWheelEnterBridge, false);
-		
-		ultraSensor.fetchSample(distances, 0);
-		
-		leftWheelMotor.rotate(moveWheelCorrection, true);
-		rightWheelMotor.rotate(moveWheelCorrection, false);
-		
-		ultraSensor.fetchSample(distances, 1);
-		
-		int correction = (int) ((distances[1] - distances[0])
-								* wheelCorrectionFactor);
-		
-		//leftWheelMotor.startSynchronization();
-		leftWheelMotor.rotate(correction, true);
-		rightWheelMotor.rotate(-correction, false);
-		//leftWheelMotor.endSynchronization();
-		
-		leftWheelMotor.backward();
-		rightWheelMotor.backward();
-		
-		Delay.msDelay(1000);
-		
-	}
+//	protected void adjustInFrontOfBarcode() {
+//		float[] distances = { 0.0f, 0.0f };
+//		
+//		leftWheelMotor.setSpeed(wheelMotorAdjustSpeed);
+//		rightWheelMotor.setSpeed(wheelMotorAdjustSpeed);
+//		
+//		leftWheelMotor.rotate(moveWheelEnterBridge, true);
+//		rightWheelMotor.rotate(moveWheelEnterBridge, false);
+//		
+//		ultraSensor.fetchSample(distances, 0);
+//		
+//		leftWheelMotor.rotate(moveWheelCorrection, true);
+//		rightWheelMotor.rotate(moveWheelCorrection, false);
+//		
+//		ultraSensor.fetchSample(distances, 1);
+//		
+//		int correction = (int) ((distances[1] - distances[0])
+//								* wheelCorrectionFactor);
+//		
+//		//leftWheelMotor.startSynchronization();
+//		leftWheelMotor.rotate(correction, true);
+//		rightWheelMotor.rotate(-correction, false);
+//		//leftWheelMotor.endSynchronization();
+//		
+//		leftWheelMotor.backward();
+//		rightWheelMotor.backward();
+//		
+//		Delay.msDelay(1000);
+//		
+//	}
 }

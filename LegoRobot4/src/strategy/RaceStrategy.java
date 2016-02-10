@@ -8,7 +8,7 @@ public class RaceStrategy extends Strategy {
 	public static final int wheelSpeed = 500;
 	
 	public static final int wheelRotate = 190;
-	public static final int wheelForward = 1300;
+	public static final int wheelForward = 1200;
 	
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
@@ -38,6 +38,6 @@ public class RaceStrategy extends Strategy {
 		leftWheelMotor.rotate(-wheelRotate, true);
 		rightWheelMotor.rotate(wheelRotate, false);
 		
-		robot.setStatus(Status.START);
+		robot.setStatus(Status.LABYRINTH);
 	}
 }

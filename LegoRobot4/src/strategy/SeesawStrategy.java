@@ -30,7 +30,7 @@ public class SeesawStrategy extends Strategy {
 	
 	public void execute () {
 		robot.ev3.getTextLCD().clear();
-		robot.ev3.getTextLCD().drawString("ElevatorStrategy", 1, 2);
+		robot.ev3.getTextLCD().drawString("SeesawStrategy", 1, 2);
 		
 		leftWheelMotor.setSpeed(wheelMotorSpeed);
 		rightWheelMotor.setSpeed(wheelMotorSpeed);

@@ -66,12 +66,12 @@ public class ElevatorStrategy extends Strategy {
 		robot.calibrateArm();
 		robot.centerArm();
 		
-		Delay.msDelay(3000);
+		Delay.msDelay(1000);
 
-		while (colorSample[0] < elevatorThreshold) {
-			Delay.msDelay(10);
-			colorSensor.getAmbientMode().fetchSample(colorSample, 0);
-		}
+//		while (colorSample[0] < elevatorThreshold) {
+//			Delay.msDelay(10);
+//			colorSensor.getAmbientMode().fetchSample(colorSample, 0);
+//		}
 	}
 	
 	protected void enterElevator() {

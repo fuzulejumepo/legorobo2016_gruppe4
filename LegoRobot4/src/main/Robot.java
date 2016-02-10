@@ -58,7 +58,7 @@ public class Robot {
 		
 		calibrateArm();
 
-		status = Status.START;
+		status = Status.LABYRINTH;
 	}
 	
 	

@@ -17,7 +17,7 @@ public class FollowLineStrategy extends Strategy{
 	//search line constants
 	//public static final int sensorArmSearchOffset = 30;
 	//public static final int wheelsSearchOffset = 70;
-	public static final int wheelsSearchDegree = 220;
+	public static final int wheelsSearchDegree = 230;
 	
 	//correct position constants
 	public static final int sensorArmCorrectionDegree = 10;
@@ -72,6 +72,10 @@ public class FollowLineStrategy extends Strategy{
 				robot.ev3.getLED().setPattern(2);
 				if (!searchLine()) {
 					robot.ev3.getLED().setPattern(0);
+					leftWheelMotor.setSpeed(wheelMotorCorrectionSpeed);
+					rightWheelMotor.setSpeed(wheelMotorCorrectionSpeed);
+					leftWheelMotor.rotate(70, true);
+					rightWheelMotor.rotate(70, false);
 					robot.setStatus(Status.BARCODE_FIND);
 					return;
 				}
