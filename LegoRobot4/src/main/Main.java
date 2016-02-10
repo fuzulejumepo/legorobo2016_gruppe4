@@ -49,7 +49,6 @@ public class Main {
 		Status status = robot.getStatus();
 		
 		while (status != Status.FINISH) {
-			System.out.println(status);
 			switch (status) {
 				case START:
 					//currentStrategy = new LabyrinthStrategy(robot);
@@ -71,7 +70,7 @@ public class Main {
 					currentStrategy = new ElevatorStrategy(robot);
 					break;
 				case SEESAW: 
-					currentStrategy = new FollowLineStrategy(robot);
+					currentStrategy = new SeesawStrategy(robot);
 					break;
 				case SUSPENSE: 
 					currentStrategy = new SuspensionBridgeStrategy(robot);

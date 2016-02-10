@@ -14,6 +14,8 @@ public class FindBarcodeStrategy extends Strategy {
 	public static final int wheelMotorSearchAngle = 60;
 	
 	public static final int wheelMotorAdjustAngle = -250;
+	public static final int wheelMotorAdjustForward = 30;
+
 
 	public static final int sensorArmMaxDegree = 160;
 	public static final int wheelCorrectionFactor = 80;
@@ -135,8 +137,8 @@ public class FindBarcodeStrategy extends Strategy {
 		
 		colorSensor.getRedMode().fetchSample(sample, 0);
 		while (sample[0] > Constants.lineThreshold) {
-			leftWheelMotor.rotate(16, true);
-			rightWheelMotor.rotate(16, false);
+			leftWheelMotor.rotate(wheelMotorAdjustForward, true);
+			rightWheelMotor.rotate(wheelMotorAdjustForward, false);
 			colorSensor.getRedMode().fetchSample(sample, 0);
 		}
 		

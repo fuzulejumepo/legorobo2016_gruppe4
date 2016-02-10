@@ -1,82 +1,78 @@
 package strategy;
 
+import edu.kit.mindstorms.communication.ComModule;
+import edu.kit.mindstorms.communication.Communication;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
-import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.robotics.RegulatedMotor;
-import main.Constants;
 import main.Robot;
 import main.Status;
 
-public class SwampStrategy extends Strategy {
-	
+public class SeesawStrategy extends Strategy {
 	public static final int wheelMotorSpeed = 500;
-	public static final int wheelMotorSpeedCorrection = 4;
-	public static final int wheelMotorForward = 800;
 	
-	public static final float swampLineThreshold = 0.6f;
+	public static final int wheelMotorSpeedCorrection = 4;
+	public static final int wheelForward = 5000;
+
 	
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
-	protected EV3ColorSensor colorSensor;
-	protected EV3UltrasonicSensor ultraSensor;
 	protected EV3GyroSensor gyroSensor;
 
-
-	public SwampStrategy(Robot robot) {
+	
+	public SeesawStrategy(Robot robot) {
 		super(robot);
 		this.leftWheelMotor = robot.leftWheelMotor;
 		this.rightWheelMotor = robot.rightWheelMotor;
-		this.colorSensor = robot.colorSensor;
-		this.ultraSensor = robot.ultraSensor;
 		this.gyroSensor = robot.gyroSensor;
 	}
 	
-	public void execute() {
+	
+	public void execute () {
 		robot.ev3.getTextLCD().clear();
-		robot.ev3.getTextLCD().drawString("SwampStrategy", 1, 2);
+		robot.ev3.getTextLCD().drawString("ElevatorStrategy", 1, 2);
 		
-		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
+		leftWheelMotor.setSpeed(wheelMotorSpeed);
+		rightWheelMotor.setSpeed(wheelMotorSpeed);
 		
-		robot.centerArm();
-		robot.ev3.getLED().setPattern(7);
-		crossSwamp();
-		robot.ev3.getLED().setPattern(0);
+		crossSeesaw();
+		
+		//leftWheelMotor.rotate(wheelForward, true);
+		//rightWheelMotor.rotate(wheelForward, false);
 		
 		robot.setStatus(Status.FOLLOW_LINE);
 	}
 	
-	protected void crossSwamp() {
+	protected void crossSeesaw() {
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
-		leftWheelMotor.setSpeed(wheelMotorSpeed);
-		rightWheelMotor.setSpeed(wheelMotorSpeed);
+		//leftWheelMotor.setSpeed(wheelMotorSpeed);
+		//rightWheelMotor.setSpeed(wheelMotorSpeed);
+		leftWheelMotor.resetTachoCount();
 		gyroSensor.reset();
 		
 		float[] startDirection = { 0.0f };
 		gyroSensor.getAngleMode().fetchSample(startDirection, 0);
 		float[] gyroSample = { 0.0f };
 		int speedOffset;
-		float[] colorSample = { 0.0f };
+		int tacho = 0;
+		System.out.println(leftWheelMotor.getTachoCount());
 
-		while (colorSample[0] < swampLineThreshold) {
+		while (tacho < wheelForward) {
 			gyroSensor.getAngleMode().fetchSample(gyroSample, 0);
 
 			speedOffset = (int)(gyroSample[0] - startDirection[0])
 							* wheelMotorSpeedCorrection;
 
+			tacho = leftWheelMotor.getTachoCount();
 			leftWheelMotor.setSpeed(wheelMotorSpeed + speedOffset);
 			rightWheelMotor.setSpeed(wheelMotorSpeed - speedOffset);
 			leftWheelMotor.forward();
 			rightWheelMotor.forward();
-			
-			colorSensor.getRedMode().fetchSample(colorSample, 0);
 		}
+		
 		leftWheelMotor.stop();
 		rightWheelMotor.stop();
-		
-		leftWheelMotor.rotate(wheelMotorForward, true);
-		rightWheelMotor.rotate(wheelMotorForward, false);
 	}
 
 }
