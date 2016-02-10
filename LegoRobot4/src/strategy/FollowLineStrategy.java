@@ -12,12 +12,12 @@ public class FollowLineStrategy extends Strategy{
 	//motors constants
 	public static final int wheelMotorFollowSpeed = 300;
 	public static final int wheelMotorCorrectionSpeed = 120;
-	public static final int sensorArmMotorSpeed = 600; //800
+	public static final int sensorArmMotorSpeed = 500; //800
 
 	//search line constants
 	//public static final int sensorArmSearchOffset = 30;
 	//public static final int wheelsSearchOffset = 70;
-	public static final int wheelsSearchDegree = 400;
+	public static final int wheelsSearchDegree = 200;
 	
 	//correct position constants
 	public static final int sensorArmCorrectionDegree = 10;
@@ -72,27 +72,28 @@ public class FollowLineStrategy extends Strategy{
 			if (!correctPosition()) {
 				robot.ev3.getLED().setPattern(2);
 				if (!searchLine())
-					break;
+					return;
 			}
 			
 			robot.ev3.getLED().setPattern(1);
 			followLine();
 		}
 		
-		robot.setStatus(Status.BARCODE_FIND);
+		//robot.setStatus(Status.BARCODE_FIND);
 	}
 
 
 	protected boolean searchLine() {		
 		float[] sample = { 0.0f };
 		
-		robot.centerArm();
-		armMotor.stop(false);
+		//robot.centerArm();
+		//armMotor.stop(false);
 		colorSensor.getRedMode().fetchSample(sample, 0);
 		if (sample[0] > Constants.lineThreshold)
 			return true;
 		
 		
+		armMotor.rotateTo(robot.sensorArmMax, false);
 		direction = -1;
 		leftWheelMotor.rotate(-wheelsSearchDegree, true);
 		rightWheelMotor.rotate(wheelsSearchDegree, true);
@@ -105,6 +106,7 @@ public class FollowLineStrategy extends Strategy{
 			}
 		}
 		
+		armMotor.rotateTo(robot.sensorArmMin, false);
 		direction = 1;
 		leftWheelMotor.rotate(2 * wheelsSearchDegree, true);
 		rightWheelMotor.rotate(-2 * wheelsSearchDegree, true);
@@ -117,12 +119,8 @@ public class FollowLineStrategy extends Strategy{
 			}
 		}
 
-		leftWheelMotor.startSynchronization();
-		leftWheelMotor.rotate(-wheelsSearchDegree);
-		rightWheelMotor.rotate(wheelsSearchDegree);
-		leftWheelMotor.endSynchronization();
-//		leftWheelMotor.rotate(-wheelsSearchDegree, true);
-//		rightWheelMotor.rotate(wheelsSearchDegree, false);
+		leftWheelMotor.rotate(-wheelsSearchDegree, true);
+		rightWheelMotor.rotate(wheelsSearchDegree, false);
 		
 		return false;
 	}
@@ -131,27 +129,23 @@ public class FollowLineStrategy extends Strategy{
 	protected boolean correctPosition() {
 		float[] sample = { 0.0f };
 		
-		int currentArmPos = armMotor.getTachoCount();
+//		int currentArmPos = armMotor.getTachoCount();
 
-		if (currentArmPos < robot.sensorArmMin + sensorArmCorrectionDegree ||
-				currentArmPos > robot.sensorArmMax - sensorArmCorrectionDegree) {
-			leftWheelMotor.rotate(direction * wheelsCorrectionDegree, true);
-			rightWheelMotor.rotate(-direction * wheelsCorrectionDegree, true);
-			while (rightWheelMotor.isMoving()) {
-				colorSensor.getRedMode().fetchSample(sample, 0);
-				if (sample[0] > Constants.lineThreshold) {
-					leftWheelMotor.stop();
-					rightWheelMotor.stop();
-					return true;
-				}
-			}
-			leftWheelMotor.startSynchronization();
-			leftWheelMotor.rotate(-direction * wheelsCorrectionDegree);
-			rightWheelMotor.rotate(direction * wheelsCorrectionDegree);
-			rightWheelMotor.endSynchronization();
+//		if (currentArmPos < robot.sensorArmMin + sensorArmCorrectionDegree ||
+//				currentArmPos > robot.sensorArmMax - sensorArmCorrectionDegree) {
+//			leftWheelMotor.rotate(direction * wheelsCorrectionDegree, true);
+//			rightWheelMotor.rotate(-direction * wheelsCorrectionDegree, true);
+//			while (rightWheelMotor.isMoving()) {
+//				colorSensor.getRedMode().fetchSample(sample, 0);
+//				if (sample[0] > Constants.lineThreshold) {
+//					leftWheelMotor.stop();
+//					rightWheelMotor.stop();
+//					return true;
+//				}
+//			}
 //			leftWheelMotor.rotate(-direction * wheelsCorrectionDegree, true);
 //			rightWheelMotor.rotate(direction * wheelsCorrectionDegree, false);
-		} 
+//		} 
 		for (int i = 0; i < 2; ++i) {
 			direction = -direction;
 			int targetArmPos = (direction > 0) ? 
@@ -227,7 +221,11 @@ public class FollowLineStrategy extends Strategy{
 			
 			
 			armMotor.stop(true);
-			armMotor.rotate(-direction * sensorArmFollowOffset, true);
+			//armMotor.rotate(-direction * sensorArmFollowOffset, true);
+			if (direction < 0)
+				armMotor.rotateTo(robot.sensorArmMin, true);
+			else
+				armMotor.rotateTo(robot.sensorArmMax, true);
 			
 			speedOffset = (int)((float)(robot.sensorArmMid - currentArmDegree)
 								* wheelMotorSpeedReduction);

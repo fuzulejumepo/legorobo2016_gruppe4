@@ -31,14 +31,18 @@ public class Main {
 
 		
 		Strategy currentStrategy;
-		for (int i = 0; i < 1; ++i) {
-			currentStrategy = new FollowLineStrategy(robot);
+		for (int i = 0; i < 100; ++i) {
+			//currentStrategy = new FollowLineStrategy(robot);
+			//currentStrategy.execute();
+			currentStrategy = new FindBarcodeStrategy(robot);
+			currentStrategy.execute();
+			currentStrategy = new ReadBarcodeStrategy(robot);
 			currentStrategy.execute();
 			//currentStrategy = new BridgeStrategy(robot);
 			//currentStrategy.execute();
 			//currentStrategy = new ElevatorStrategy(robot);
 			//currentStrategy.execute();
-			//robot.ev3.getKeys().waitForAnyPress();
+			robot.ev3.getKeys().waitForAnyPress();
 		}
 		
 		/*Strategy currentStrategy = null;

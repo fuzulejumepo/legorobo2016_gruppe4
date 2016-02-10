@@ -9,89 +9,43 @@ import main.Robot;
 import main.Status;
 
 public class ReadBarcodeStrategy extends Strategy {
-	
-	public static final int tachoCountMax = 200;
+		
+	public static final int wheelMotorBarRotate = 178;
 	
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
 	protected RegulatedMotor rightWheelMotor;
-	protected EV3ColorSensor armSensor;
+	protected EV3ColorSensor colorSensor;
 	
-	protected float[] startDirection = { 0.0f };
 	
 	public ReadBarcodeStrategy(Robot robot) {
 		super(robot);
 		this.armMotor = robot.sensorArmMotor;
 		this.leftWheelMotor = robot.leftWheelMotor;
 		this.rightWheelMotor = robot.rightWheelMotor;
-		this.armSensor = robot.colorSensor;
+		this.colorSensor = robot.colorSensor;
 	}
 
 	@Override
 	public void execute() {
 		robot.ev3.getTextLCD().clear();
-		robot.ev3.getTextLCD().drawString("Reading Barcode", 2, 2);
+		robot.ev3.getTextLCD().drawString("ReadBarcodeStrategy", 2, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
-		
 		robot.colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
 		robot.centerArm();
 		
-		moveBack();
-		
-		float[] sample1 = { 0.0f };
-		float[] sample2 = { 0.0f };
-		int counter = 0;
-		int sign = 1;
-		
-		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
-
-		leftWheelMotor.startSynchronization();
-		leftWheelMotor.forward();
-		rightWheelMotor.forward();
-		leftWheelMotor.endSynchronization();
-
-		int meanTacho = 0;	
-		
-		armSensor.getRedMode().fetchSample(sample1, 0);
-		armSensor.getRedMode().fetchSample(sample2, 0);
-		
-		if (sample1[0]>Constants.lineThreshold ||sample2[0]>Constants.lineThreshold ) {
-			Sound.beepSequenceUp();
-			sign = 1;
-		}
-		else {
-			Sound.beepSequence();
-			sign = -1;
-		}
-			
-		while ( meanTacho < tachoCountMax){
-			
-			counter += 1;
-			leftWheelMotor.resetTachoCount();
-			rightWheelMotor.resetTachoCount();
-			
-			while ((sign*sample1[0] > sign*Constants.lineThreshold 
-					|| sign*sample2[0] > sign*Constants.lineThreshold ) 
-					&& leftWheelMotor.getTachoCount() < tachoCountMax) {		
-				armSensor.getRedMode().fetchSample(sample1, 0);
-				armSensor.getRedMode().fetchSample(sample2, 0);
-				Delay.msDelay(100);
-				//System.out.println("color: " + sample1[0] + " " + sample2[0]);
-			}
-						
-			sign = -sign;
-			meanTacho = (leftWheelMotor.getTachoCount()+rightWheelMotor.getTachoCount())/2;	
-			Delay.msDelay(100);
-			//System.out.println("Tacho: " + meanTacho);
+		int countLines;
+		for (countLines = 0; countLines < 6; ++countLines) {
+			if (!readNextBar())
+				break;
+			Delay.msDelay(2);
 		}
 		
-		leftWheelMotor.stop();
-		rightWheelMotor.stop();
-		counter = counter/2;
-		//System.out.println("	Barcode: " + counter);
 		
-		switch (counter) {
+		robot.ev3.getTextLCD().drawInt(countLines, 5, 5);
+		
+		switch (countLines) {
 			case 1: 
 				robot.setStatus(Status.SWAMP);
 				break;
@@ -116,11 +70,19 @@ public class ReadBarcodeStrategy extends Strategy {
 		
 	}
 	
-	protected void moveBack() {
-		leftWheelMotor.backward();
-		rightWheelMotor.backward();
+	protected boolean readNextBar() {
+		float[] sample = { 0.0f };
+		boolean foundLine = false;
 		
-		Delay.msDelay(300);
+		leftWheelMotor.rotate(wheelMotorBarRotate, true);
+		rightWheelMotor.rotate(wheelMotorBarRotate, true);
+		
+		while (rightWheelMotor.isMoving()) {
+			colorSensor.getRedMode().fetchSample(sample, 0);
+			if (sample[0] > Constants.lineThreshold)
+				foundLine = true;
+		}
+		
+		return foundLine;
 	}
- 
 }

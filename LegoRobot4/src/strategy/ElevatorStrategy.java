@@ -59,6 +59,9 @@ public class ElevatorStrategy extends Strategy {
 	
 	protected void waitForUp() {
 		float[] colorSample = { 0.0f };
+		
+		robot.calibrateArm();
+		robot.centerArm();
 
 		while (colorSample[0] < elevatorThreshold)
 			colorSensor.getAmbientMode().fetchSample(colorSample, 0);

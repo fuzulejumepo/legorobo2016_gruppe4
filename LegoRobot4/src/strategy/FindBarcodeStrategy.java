@@ -13,9 +13,10 @@ public class FindBarcodeStrategy extends Strategy {
 	
 	public static final int wheelMotorSearchAngle = 60;
 	
-	public static final int wheelMotorAdjustAngle = -400;
+	public static final int wheelMotorAdjustAngle = -250;
 
-	
+	public static final int sensorArmMaxDegree = 100;
+	public static final int wheelCorrectionFactor = 140;
 	public static final float wheelAdjustOffset = 0.8f;
 
 	
@@ -41,38 +42,35 @@ public class FindBarcodeStrategy extends Strategy {
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
 
-		//robot.calibrateArm();
-		robot.centerArm();
-		
-		//move back a little bit to find the first line
-		moveBack();
-		
-		for (int i = 0; i < 2; ++i) {
-			robot.ev3.getLED().setPattern(3);
-			findBar();
-			if (adjustAtBar())
-				robot.ev3.getLED().setPattern(4);
-			else
-				robot.ev3.getLED().setPattern(5);
-			Delay.msDelay(1500);
-		}
-		
-		robot.setStatus(Status.BARCODE_READ);
-	}
-	
-	protected void findBar() {
 		armMotor.setSpeed(sensorArmMotorSpeed);
 		leftWheelMotor.setSpeed(wheelMotorSpeed);
 		rightWheelMotor.setSpeed(wheelMotorSpeed);
 		
+		//robot.calibrateArm();
+		robot.centerArm();
+		
+		while (true) {
+			robot.ev3.getLED().setPattern(4);
+			findBar();
+			robot.ev3.getLED().setPattern(5);
+			if (adjustAtBar())
+				return;
+		}
+		
+		//robot.setStatus(Status.BARCODE_READ);
+	}
+	
+	protected void findBar() {
 		leftWheelMotor.resetTachoCount();
 		rightWheelMotor.resetTachoCount();
+		
+		robot.ev3.getTextLCD().drawInt(robot.sensorArmDegree, 3, 6);
 		
 		leftWheelMotor.forward();
 		rightWheelMotor.forward();
 		
 		float[] sample = { 0.0f };
-		while (sample[0] < Constants.lineThreshold && leftWheelMotor.getTachoCount() < 500) {
+		while (sample[0] < Constants.lineThreshold) {
 			colorSensor.getRedMode().fetchSample(sample, 0);
 		}
 		
@@ -80,45 +78,75 @@ public class FindBarcodeStrategy extends Strategy {
 		rightWheelMotor.rotate(wheelMotorSearchAngle, false);
 	}
 	
+	/**
+	 * @return
+	 */
 	protected boolean adjustAtBar() {
 		float[] sample = { 0.0f };
+		int direction = 1;
 		
-		int minBarPos = robot.sensorArmMin - 100;
-		int maxBarPos = robot.sensorArmMax + 100;
+		int minBarPos = robot.sensorArmMid;
+		int maxBarPos = robot.sensorArmMid;
 		
-		armMotor.rotateTo(robot.sensorArmMin, false);
-		armMotor.rotate(robot.sensorArmDegree / 3, true);
-		while (armMotor.isMoving()) {
-			colorSensor.getRedMode().fetchSample(sample, 0);
-			if (sample[0] > Constants.lineThreshold) {
-				armMotor.stop(false);
-				minBarPos = armMotor.getTachoCount();
+		for (int i = 0; i < 3; ++i) {
+			minBarPos = robot.sensorArmMid;
+			maxBarPos = robot.sensorArmMid;
+
+			armMotor.rotateTo(robot.sensorArmMin, false);
+			armMotor.rotateTo(robot.sensorArmMax, true);
+			while (armMotor.isMoving()) {
+				colorSensor.getRedMode().fetchSample(sample, 0);
+				if (sample[0] > Constants.lineThreshold) {
+					armMotor.stop(false);
+					minBarPos = armMotor.getTachoCount();
+				}
 			}
-		}
-		
-		armMotor.rotateTo(robot.sensorArmMax, false);
-		armMotor.rotate(-robot.sensorArmDegree / 3, true);
-		while (armMotor.isMoving()) {
-			colorSensor.getRedMode().fetchSample(sample, 0);
-			if (sample[0] > Constants.lineThreshold) {
-				armMotor.stop(false);
-				maxBarPos = armMotor.getTachoCount();
+
+			armMotor.rotateTo(robot.sensorArmMax, false);
+			armMotor.rotateTo(robot.sensorArmMin, true);
+			while (armMotor.isMoving()) {
+				colorSensor.getRedMode().fetchSample(sample, 0);
+				if (sample[0] > Constants.lineThreshold) {
+					armMotor.stop(false);
+					maxBarPos = armMotor.getTachoCount();
+				}
 			}
+			
+			if (minBarPos < robot.sensorArmMin + sensorArmMaxDegree &&
+					maxBarPos > robot.sensorArmMax - sensorArmMaxDegree)
+				break;
+			
+			leftWheelMotor.rotate(direction * i * wheelCorrectionFactor, true);
+			rightWheelMotor.rotate(-direction * i * wheelCorrectionFactor, false);
+			
+			direction = -direction;
 		}
 		
 		robot.centerArm();
 		
-		if (minBarPos < robot.sensorArmMin) {
-			leftWheelMotor.rotate(wheelMotorAdjustAngle, false);
-			leftWheelMotor.rotate(-2 * wheelMotorSearchAngle, true);
-			rightWheelMotor.rotate(-2 * wheelMotorSearchAngle, false);
-			return false;
-		} else if (maxBarPos > robot.sensorArmMax) {
-			rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
-			leftWheelMotor.rotate(-2 * wheelMotorSearchAngle, true);
-			rightWheelMotor.rotate(-2 * wheelMotorSearchAngle, false);
-			return false;
-		}
+//		if (minBarPos > robot.sensorArmMin + sensorArmMaxDegree ||
+//				maxBarPos < robot.sensorArmMax - sensorArmMaxDegree) {
+//			if (robot.sensorArmMax - maxBarPos < minBarPos - robot.sensorArmMin)
+//				rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
+//			else
+//				leftWheelMotor.rotate(wheelMotorAdjustAngle, false);
+//			
+//			leftWheelMotor.rotate(wheelMotorAdjustAngle, true);
+//			rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
+//			return false;
+//		}
+		
+//		if (minBarPos > robot.sensorArmMin + sensorArmMaxDegree) {
+//			rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
+//			leftWheelMotor.rotate(wheelMotorAdjustAngle, true);
+//			rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
+//			return false;
+//		} else if (maxBarPos < robot.sensorArmMax - sensorArmMaxDegree) {
+//			leftWheelMotor.rotate(wheelMotorAdjustAngle, false);
+//			leftWheelMotor.rotate(wheelMotorAdjustAngle, true);
+//			rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
+//			return false;
+//		}
 		
 		int correction = (int) (((robot.sensorArmMid - minBarPos) 
 								- (maxBarPos - robot.sensorArmMid))
@@ -126,13 +154,13 @@ public class FindBarcodeStrategy extends Strategy {
 		leftWheelMotor.rotate(correction, true);
 		rightWheelMotor.rotate(-correction, false);
 		
-		return true;
-	}
-	
-	protected void moveBack() {
-		leftWheelMotor.backward();
-		rightWheelMotor.backward();
+		colorSensor.getRedMode().fetchSample(sample, 0);
+		while (sample[0] > Constants.lineThreshold) {
+			leftWheelMotor.rotate(16, true);
+			rightWheelMotor.rotate(16, false);
+			colorSensor.getRedMode().fetchSample(sample, 0);
+		}
 		
-		Delay.msDelay(700);
+		return true;
 	}
 }
