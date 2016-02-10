@@ -93,9 +93,12 @@ public static final int wheelMotorAdjustSpeed = 500;
 			
 		}
 		
-		leftWheelMotor.stop();
-		rightWheelMotor.stop();
-		adjustInFrontOfBarcode();
+		leftWheelMotor.stop(true);
+		rightWheelMotor.stop(false);
+		
+		leftWheelMotor.rotate(-200, true);
+		rightWheelMotor.rotate(-200, false);
+		//adjustInFrontOfBarcode();
 		
 		robot.setStatus(Status.BARCODE_FIND);
 	}
@@ -135,5 +138,6 @@ public static final int wheelMotorAdjustSpeed = 500;
 		rightWheelMotor.backward();
 		
 		Delay.msDelay(1000);
+		
 	}
 }
