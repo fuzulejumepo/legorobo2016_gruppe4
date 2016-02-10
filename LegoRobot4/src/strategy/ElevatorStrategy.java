@@ -17,7 +17,7 @@ public class ElevatorStrategy extends Strategy {
 	public static final int wheelMotorSpeed = 400;
 	
 	//enter elevator constants
-	public static final float elevatorThreshold = 0.18f;
+	public static final float elevatorThreshold = 0.16f;
 	public static final float enterElevatorDist = 0.2f;
 	public static final int enterCorrectionFactor = 1200;
 

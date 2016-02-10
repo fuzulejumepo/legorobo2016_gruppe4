@@ -17,7 +17,7 @@ public class FollowLineStrategy extends Strategy{
 	//search line constants
 	//public static final int sensorArmSearchOffset = 30;
 	//public static final int wheelsSearchOffset = 70;
-	public static final int wheelsSearchDegree = 200;
+	public static final int wheelsSearchDegree = 220;
 	
 	//correct position constants
 	public static final int sensorArmCorrectionDegree = 10;

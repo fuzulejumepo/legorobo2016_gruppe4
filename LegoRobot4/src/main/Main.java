@@ -33,7 +33,7 @@ public class Main {
 		Strategy currentStrategy = null;
 		
 //		for (int i = 0; i < 100; ++i) {
-//			currentStrategy = new FollowLineStrategy(robot);
+//			currentStrategy = new TestStrategy(robot);
 //			currentStrategy.execute();
 //			//currentStrategy = new FindBarcodeStrategy(robot);
 //			//currentStrategy.execute();

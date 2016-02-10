@@ -19,7 +19,8 @@ public class SuspensionBridgeStrategy extends Strategy {
 	public static final int wheelsSearchDegree = 200;
 
 	//adjust constants
-	public static final int moveWheelEnterBridge = 700;
+	public static final int moveWheelEnterBridge = 800;
+	public static final int moveWheelExitBridge = 1000;
 	public static final int moveWheelCorrection = 600;
 	public static final int wheelCorrectionFactor = 1800;
 	
@@ -59,11 +60,11 @@ public class SuspensionBridgeStrategy extends Strategy {
 		followLine();
 		robot.ev3.getLED().setPattern(2);
 		adjustInFrontOfBridge();
-		robot.ev3.getLED().setPattern(8);
+		robot.ev3.getLED().setPattern(7);
 		crossBridge();
 		robot.ev3.getLED().setPattern(0);
 		
-		robot.setStatus(Status.BARCODE_FIND);
+		robot.setStatus(Status.FOLLOW_LINE);
 	}
 	
 	protected void followLine() {
@@ -165,8 +166,11 @@ public class SuspensionBridgeStrategy extends Strategy {
 			colorSensor.getRedMode().fetchSample(colorSample, 0);
 		}
 		
-		leftWheelMotor.stop();
-		rightWheelMotor.stop();
+		leftWheelMotor.stop(true);
+		rightWheelMotor.stop(false);
+		
+		leftWheelMotor.rotate(moveWheelExitBridge, true);
+		rightWheelMotor.rotate(moveWheelExitBridge, false);
 	}
 
 }
