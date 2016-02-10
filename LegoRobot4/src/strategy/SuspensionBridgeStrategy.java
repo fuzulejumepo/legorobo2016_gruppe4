@@ -19,7 +19,7 @@ public class SuspensionBridgeStrategy extends Strategy {
 	public static final int wheelsSearchDegree = 200;
 
 	//adjust constants
-	public static final int moveWheelEnterBridge = 800;
+	public static final int moveWheelEnterBridge = 700;
 	public static final int moveWheelExitBridge = 1000;
 	public static final int moveWheelCorrection = 600;
 	public static final int wheelCorrectionFactor = 1800;

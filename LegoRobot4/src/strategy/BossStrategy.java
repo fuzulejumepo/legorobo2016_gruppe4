@@ -51,7 +51,7 @@ public class BossStrategy extends Strategy {
 		int speedOffset;
 		int tacho = 0;
 
-		while (tacho < wheelForward) {
+		while (true) {
 			gyroSensor.getAngleMode().fetchSample(gyroSample, 0);
 
 			speedOffset = (int)(gyroSample[0] - startDirection[0])
@@ -64,7 +64,7 @@ public class BossStrategy extends Strategy {
 			rightWheelMotor.forward();
 		}
 		
-		leftWheelMotor.stop();
-		rightWheelMotor.stop();
+		//leftWheelMotor.stop();
+		//rightWheelMotor.stop();
 	}
 }

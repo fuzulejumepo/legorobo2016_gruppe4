@@ -28,8 +28,10 @@ public class Main {
 
 		robot.ev3.getLED().setPattern(0);
 		robot.centerArm();
-		robot.setStatus(Status.FIND_BARCODE);
+		robot.setStatus(Status.LABYRINTH);
 
+		robot.ev3.getKeys().waitForAnyPress();
+		Delay.msDelay(1000);
 		
 		Strategy currentStrategy = null;
 		
@@ -59,7 +61,6 @@ public class Main {
 			switch (status) {
 				case LABYRINTH:
 					currentStrategy = new LabyrinthStrategy(robot);
-					//currentStrategy = new FindBarcodeStrategy(robot);
 					break;
 				case FIND_BARCODE:
 					currentStrategy = new FindBarcodeStrategy(robot);
