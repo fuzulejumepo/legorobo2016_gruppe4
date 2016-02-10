@@ -12,7 +12,7 @@ public class SeesawStrategy extends Strategy {
 	public static final int wheelMotorSpeed = 500;
 	
 	public static final int wheelMotorSpeedCorrection = 4;
-	public static final int wheelForward = 5000;
+	public static final int wheelForward = 4900;
 
 	
 	protected RegulatedMotor leftWheelMotor;

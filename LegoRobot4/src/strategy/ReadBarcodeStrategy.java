@@ -11,7 +11,7 @@ import main.Status;
 public class ReadBarcodeStrategy extends Strategy {
 		
 	public static final int wheelMotorBarRotate = 178;
-	public static final int WheelMotorMoveForward = 260;
+	public static final int WheelMotorMoveForward = 300;
 	
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
