@@ -30,29 +30,30 @@ public class Main {
 		robot.centerArm();
 
 		
-		Strategy currentStrategy;
-		for (int i = 0; i < 100; ++i) {
-			//currentStrategy = new FollowLineStrategy(robot);
-			//currentStrategy.execute();
-			currentStrategy = new FindBarcodeStrategy(robot);
-			currentStrategy.execute();
-			currentStrategy = new ReadBarcodeStrategy(robot);
-			currentStrategy.execute();
-			//currentStrategy = new BridgeStrategy(robot);
-			//currentStrategy.execute();
-			//currentStrategy = new ElevatorStrategy(robot);
-			//currentStrategy.execute();
-			robot.ev3.getKeys().waitForAnyPress();
-		}
+		Strategy currentStrategy = null;
 		
-		/*Strategy currentStrategy = null;
+//		for (int i = 0; i < 100; ++i) {
+//			currentStrategy = new FollowLineStrategy(robot);
+//			currentStrategy.execute();
+//			//currentStrategy = new FindBarcodeStrategy(robot);
+//			//currentStrategy.execute();
+//			//currentStrategy = new ReadBarcodeStrategy(robot);
+//			//currentStrategy.execute();
+//			//currentStrategy = new BridgeStrategy(robot);
+//			//currentStrategy.execute();
+//			//currentStrategy = new ElevatorStrategy(robot);
+//			//currentStrategy.execute();
+//			robot.ev3.getKeys().waitForAnyPress();
+//		}
+		
 		Status status = robot.getStatus();
 		
 		while (status != Status.FINISH) {
 			System.out.println(status);
 			switch (status) {
 				case START:
-					currentStrategy = new LabyrinthStrategy(robot);
+					//currentStrategy = new LabyrinthStrategy(robot);
+					currentStrategy = new FindBarcodeStrategy(robot);
 					break;
 				case BARCODE_FIND:
 					currentStrategy = new FindBarcodeStrategy(robot);
@@ -60,7 +61,7 @@ public class Main {
 				case BARCODE_READ:
 					currentStrategy = new ReadBarcodeStrategy(robot);
 					break;
-				case LINE:
+				case FOLLOW_LINE:
 					currentStrategy = new FollowLineStrategy(robot);
 					break;
 				case BRIDGE:
@@ -79,22 +80,28 @@ public class Main {
 					currentStrategy = new SwampStrategy(robot);
 					break;
 				case RACE: 
-					currentStrategy = new RacingStrategy(robot);
+					currentStrategy = null;
 					break;
+				case ERROR:
+					currentStrategy = null;
 				default:
 					currentStrategy = null;
 			}
 			
 			if (currentStrategy != null) {
 				currentStrategy.execute();
-				status = robot.getStatus();
+			} else {
+				robot.ev3.getLED().setPattern(9);
+				robot.ev3.getTextLCD().clear();
+				robot.ev3.getTextLCD().drawString("Please set", 1, 1);
+				robot.ev3.getTextLCD().drawString("in fron of", 1, 2);
+				robot.ev3.getTextLCD().drawString("a barcode", 1, 3);
+				robot.setStatus(Status.BARCODE_FIND);
+				robot.ev3.getKeys().waitForAnyPress();
 			}
-			else {
-				robot.ev3.getLED().setPattern(1);
-				System.out.println("No strategy found!");
-				break;
-			}
-		}*/
+			
+			status = robot.getStatus();
+		}
 		
 		robot.close();
 	}

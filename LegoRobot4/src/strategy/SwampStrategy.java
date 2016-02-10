@@ -33,7 +33,7 @@ public class SwampStrategy extends Strategy {
 	
 	public void execute() {
 		robot.ev3.getTextLCD().clear();
-		robot.ev3.getTextLCD().drawString("SwampStrategy", 2, 2);
+		robot.ev3.getTextLCD().drawString("SwampStrategy", 1, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		

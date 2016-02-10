@@ -46,7 +46,7 @@ public class SuspensionBridgeStrategy extends Strategy {
 
 	public void execute() {
 		robot.ev3.getTextLCD().clear();
-		robot.ev3.getTextLCD().drawString("SuspensionBridgeStrategy", 2, 2);
+		robot.ev3.getTextLCD().drawString("SuspensionBridgeStrategy", 1, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		colorSensor.setCurrentMode(colorSensor.getRedMode().getName());

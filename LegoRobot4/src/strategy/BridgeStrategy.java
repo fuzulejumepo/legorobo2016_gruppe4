@@ -10,7 +10,7 @@ import main.Status;
 public class BridgeStrategy extends Strategy {
 	
 	//motors constants
-	public static final int wheelMotorSpeed = 500;
+	public static final int wheelMotorSpeed = 400;
 	public static final int sensorArmMotorSpeed = 500;
 	
 	//find edge constants
@@ -44,7 +44,7 @@ public class BridgeStrategy extends Strategy {
 	
 	public void execute() {
 		robot.ev3.getTextLCD().clear();
-		robot.ev3.getTextLCD().drawString("BridgeStrategy", 2, 2);
+		robot.ev3.getTextLCD().drawString("BridgeStrategy", 1, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		colorSensor.setCurrentMode(colorSensor.getColorIDMode().getName());

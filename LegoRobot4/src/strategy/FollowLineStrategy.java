@@ -12,7 +12,7 @@ public class FollowLineStrategy extends Strategy{
 	//motors constants
 	public static final int wheelMotorFollowSpeed = 300;
 	public static final int wheelMotorCorrectionSpeed = 120;
-	public static final int sensorArmMotorSpeed = 500; //800
+	public static final int sensorArmMotorSpeed = 400; //800
 
 	//search line constants
 	//public static final int sensorArmSearchOffset = 30;
@@ -53,7 +53,8 @@ public class FollowLineStrategy extends Strategy{
 	
 	
 	public void execute() {
-		robot.ev3.getTextLCD().drawString("FollowLineStrategy", 2, 2);
+		robot.ev3.getTextLCD().clear();
+		robot.ev3.getTextLCD().drawString("FollowLineStrategy", 1, 2);
 
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
@@ -61,8 +62,6 @@ public class FollowLineStrategy extends Strategy{
 		robot.centerArm();
 		armMotor.setSpeed(sensorArmMotorSpeed);
 		
-		//robot.ev3.getLED().setPattern(2);
-		//searchLine();
 		
 		while (true) {
 			leftWheelMotor.setSpeed(wheelMotorCorrectionSpeed);
@@ -71,27 +70,21 @@ public class FollowLineStrategy extends Strategy{
 			robot.ev3.getLED().setPattern(3);
 			if (!correctPosition()) {
 				robot.ev3.getLED().setPattern(2);
-				if (!searchLine())
+				if (!searchLine()) {
+					robot.ev3.getLED().setPattern(0);
+					robot.setStatus(Status.BARCODE_FIND);
 					return;
+				}
 			}
 			
 			robot.ev3.getLED().setPattern(1);
 			followLine();
 		}
-		
-		//robot.setStatus(Status.BARCODE_FIND);
 	}
 
 
 	protected boolean searchLine() {		
 		float[] sample = { 0.0f };
-		
-		//robot.centerArm();
-		//armMotor.stop(false);
-		colorSensor.getRedMode().fetchSample(sample, 0);
-		if (sample[0] > Constants.lineThreshold)
-			return true;
-		
 		
 		armMotor.rotateTo(robot.sensorArmMax, false);
 		direction = -1;
@@ -129,6 +122,10 @@ public class FollowLineStrategy extends Strategy{
 	protected boolean correctPosition() {
 		float[] sample = { 0.0f };
 		
+		colorSensor.getRedMode().fetchSample(sample, 0);
+		if (sample[0] > Constants.lineThreshold)
+			return true;
+		
 //		int currentArmPos = armMotor.getTachoCount();
 
 //		if (currentArmPos < robot.sensorArmMin + sensorArmCorrectionDegree ||
@@ -148,10 +145,10 @@ public class FollowLineStrategy extends Strategy{
 //		} 
 		for (int i = 0; i < 2; ++i) {
 			direction = -direction;
-			int targetArmPos = (direction > 0) ? 
-					robot.sensorArmMin :
-					robot.sensorArmMax;
-			armMotor.rotateTo(targetArmPos, true);
+			if (direction > 0)
+				armMotor.rotateTo(robot.sensorArmMin, true);
+			else
+				armMotor.rotateTo(robot.sensorArmMax, true);
 			while (armMotor.isMoving()) {
 				colorSensor.getRedMode().fetchSample(sample, 0);
 				if (sample[0] > Constants.lineThreshold) {

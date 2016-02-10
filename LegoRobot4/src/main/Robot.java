@@ -58,8 +58,6 @@ public class Robot {
 		
 		calibrateArm();
 
-		//colorSensor.setFloodlight(true);
-		
 		status = Status.START;
 	}
 	
@@ -83,6 +81,7 @@ public class Robot {
 		
 		sensorArmMotor.stop(false);
 	}
+	
 	
 	public void centerArm() {
 		sensorArmMotor.rotateTo(sensorArmMid, false);

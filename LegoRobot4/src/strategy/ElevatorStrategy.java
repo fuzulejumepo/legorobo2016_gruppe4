@@ -41,6 +41,9 @@ public class ElevatorStrategy extends Strategy {
 	}
 
 	public void execute () {
+		robot.ev3.getTextLCD().clear();
+		robot.ev3.getTextLCD().drawString("ElevatorStrategy", 1, 2);
+		
 		ComModule comModule = Communication.getModule();
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
@@ -54,7 +57,7 @@ public class ElevatorStrategy extends Strategy {
 		waitForDown();
 		leaveElevator();
 		
-		robot.setStatus(Status.LINE);
+		robot.setStatus(Status.FOLLOW_LINE);
 	}
 	
 	protected void waitForUp() {

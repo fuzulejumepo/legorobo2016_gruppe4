@@ -11,6 +11,7 @@ import main.Status;
 public class ReadBarcodeStrategy extends Strategy {
 		
 	public static final int wheelMotorBarRotate = 178;
+	public static final int WheelMotorMoveForward = 200;
 	
 	protected RegulatedMotor armMotor;
 	protected RegulatedMotor leftWheelMotor;
@@ -29,28 +30,33 @@ public class ReadBarcodeStrategy extends Strategy {
 	@Override
 	public void execute() {
 		robot.ev3.getTextLCD().clear();
-		robot.ev3.getTextLCD().drawString("ReadBarcodeStrategy", 2, 2);
+		robot.ev3.getTextLCD().drawString("ReadBarcodeStrategy", 1, 2);
 		
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		robot.colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
+		
+		robot.ev3.getLED().setPattern(4);
 		robot.centerArm();
 		
 		int countLines;
-		for (countLines = 0; countLines < 6; ++countLines) {
+		for (countLines = 1; countLines <= 5; ++countLines) {
 			if (!readNextBar())
 				break;
-			Delay.msDelay(2);
 		}
 		
+		robot.ev3.getTextLCD().drawString("bars=" + countLines, 2, 5);
 		
-		robot.ev3.getTextLCD().drawInt(countLines, 5, 5);
+		leftWheelMotor.rotate(WheelMotorMoveForward, true);
+		rightWheelMotor.rotate(WheelMotorMoveForward, false);
+		
+		robot.ev3.getLED().setPattern(0);
 		
 		switch (countLines) {
 			case 1: 
 				robot.setStatus(Status.SWAMP);
 				break;
 			case 2:
-				robot.setStatus(Status.LINE);
+				robot.setStatus(Status.FOLLOW_LINE);
 				break;
 			case 3:
 				robot.setStatus(Status.BRIDGE);
@@ -65,7 +71,7 @@ public class ReadBarcodeStrategy extends Strategy {
 				robot.setStatus(Status.RACE);
 				break;
 			default:
-				robot.setStatus(Status.FINISH);
+				robot.setStatus(Status.ERROR);
 		}
 		
 	}

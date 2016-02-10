@@ -15,9 +15,9 @@ public class FindBarcodeStrategy extends Strategy {
 	
 	public static final int wheelMotorAdjustAngle = -250;
 
-	public static final int sensorArmMaxDegree = 100;
-	public static final int wheelCorrectionFactor = 140;
-	public static final float wheelAdjustOffset = 0.8f;
+	public static final int sensorArmMaxDegree = 160;
+	public static final int wheelCorrectionFactor = 80;
+	public static final float wheelAdjustFactor = 0.7f;
 
 	
 	
@@ -37,7 +37,7 @@ public class FindBarcodeStrategy extends Strategy {
 	
 	public void execute() {
 		robot.ev3.getTextLCD().clear();
-		robot.ev3.getTextLCD().drawString("FindBarcodeStrategy", 2, 2);
+		robot.ev3.getTextLCD().drawString("FindBarcodeStrategy", 1, 2);
 
 		leftWheelMotor.synchronizeWith(new RegulatedMotor[] {rightWheelMotor});
 		colorSensor.setCurrentMode(robot.colorSensor.getRedMode().getName());
@@ -45,26 +45,24 @@ public class FindBarcodeStrategy extends Strategy {
 		armMotor.setSpeed(sensorArmMotorSpeed);
 		leftWheelMotor.setSpeed(wheelMotorSpeed);
 		rightWheelMotor.setSpeed(wheelMotorSpeed);
-		
-		//robot.calibrateArm();
+
 		robot.centerArm();
-		
-		while (true) {
-			robot.ev3.getLED().setPattern(4);
-			findBar();
-			robot.ev3.getLED().setPattern(5);
-			if (adjustAtBar())
-				return;
-		}
-		
-		//robot.setStatus(Status.BARCODE_READ);
+
+		robot.ev3.getLED().setPattern(4);
+		findFirstBar();
+		robot.ev3.getLED().setPattern(5);
+		boolean success = adjustAtBar();
+		robot.ev3.getLED().setPattern(0);
+		if (success)
+			robot.setStatus(Status.BARCODE_READ);
+		else
+			robot.setStatus(Status.ERROR);
 	}
 	
-	protected void findBar() {
+	
+	protected void findFirstBar() {
 		leftWheelMotor.resetTachoCount();
 		rightWheelMotor.resetTachoCount();
-		
-		robot.ev3.getTextLCD().drawInt(robot.sensorArmDegree, 3, 6);
 		
 		leftWheelMotor.forward();
 		rightWheelMotor.forward();
@@ -73,14 +71,9 @@ public class FindBarcodeStrategy extends Strategy {
 		while (sample[0] < Constants.lineThreshold) {
 			colorSensor.getRedMode().fetchSample(sample, 0);
 		}
-		
-		leftWheelMotor.rotate(wheelMotorSearchAngle, true);
-		rightWheelMotor.rotate(wheelMotorSearchAngle, false);
 	}
 	
-	/**
-	 * @return
-	 */
+	
 	protected boolean adjustAtBar() {
 		float[] sample = { 0.0f };
 		int direction = 1;
@@ -88,10 +81,14 @@ public class FindBarcodeStrategy extends Strategy {
 		int minBarPos = robot.sensorArmMid;
 		int maxBarPos = robot.sensorArmMid;
 		
-		for (int i = 0; i < 3; ++i) {
+		int i;
+		for (i = 1; i <= 4; ++i) {
 			minBarPos = robot.sensorArmMid;
 			maxBarPos = robot.sensorArmMid;
 
+			leftWheelMotor.rotate(wheelMotorSearchAngle, true);
+			rightWheelMotor.rotate(wheelMotorSearchAngle, false);
+			
 			armMotor.rotateTo(robot.sensorArmMin, false);
 			armMotor.rotateTo(robot.sensorArmMax, true);
 			while (armMotor.isMoving()) {
@@ -116,6 +113,9 @@ public class FindBarcodeStrategy extends Strategy {
 					maxBarPos > robot.sensorArmMax - sensorArmMaxDegree)
 				break;
 			
+			leftWheelMotor.rotate(-2 * wheelMotorSearchAngle, true);
+			rightWheelMotor.rotate(-2 * wheelMotorSearchAngle, false);
+			
 			leftWheelMotor.rotate(direction * i * wheelCorrectionFactor, true);
 			rightWheelMotor.rotate(-direction * i * wheelCorrectionFactor, false);
 			
@@ -123,34 +123,13 @@ public class FindBarcodeStrategy extends Strategy {
 		}
 		
 		robot.centerArm();
+		if (i > 4)
+			return false;
 		
-//		if (minBarPos > robot.sensorArmMin + sensorArmMaxDegree ||
-//				maxBarPos < robot.sensorArmMax - sensorArmMaxDegree) {
-//			if (robot.sensorArmMax - maxBarPos < minBarPos - robot.sensorArmMin)
-//				rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
-//			else
-//				leftWheelMotor.rotate(wheelMotorAdjustAngle, false);
-//			
-//			leftWheelMotor.rotate(wheelMotorAdjustAngle, true);
-//			rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
-//			return false;
-//		}
-		
-//		if (minBarPos > robot.sensorArmMin + sensorArmMaxDegree) {
-//			rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
-//			leftWheelMotor.rotate(wheelMotorAdjustAngle, true);
-//			rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
-//			return false;
-//		} else if (maxBarPos < robot.sensorArmMax - sensorArmMaxDegree) {
-//			leftWheelMotor.rotate(wheelMotorAdjustAngle, false);
-//			leftWheelMotor.rotate(wheelMotorAdjustAngle, true);
-//			rightWheelMotor.rotate(wheelMotorAdjustAngle, false);
-//			return false;
-//		}
 		
 		int correction = (int) (((robot.sensorArmMid - minBarPos) 
 								- (maxBarPos - robot.sensorArmMid))
-									* wheelAdjustOffset);
+									* wheelAdjustFactor);
 		leftWheelMotor.rotate(correction, true);
 		rightWheelMotor.rotate(-correction, false);
 		
